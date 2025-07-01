@@ -10,26 +10,28 @@
             --light-cream: #F8F6F1; /* Warna putih / krem terang dari latar belakang menu */
             --text-dark: #333;
             --text-light: #666;
-            --accent-orange: #FF8C00; /* Contoh warna aksen jika diperlukan, tidak ada di gambar menu tapi bisa ditambahkan */
+            --accent-orange: #FF8C00;
             --category-color: #555;
+            --input-border: #ccc;
+            --input-focus-border: #00796b;
         }
 
         body {
-            font-family: 'Poppins', sans-serif; /* Menggunakan Poppins untuk teks umum */
-            max-width: 1200px; /* Lebar lebih besar untuk menampung dua bagian jika diperlukan */
+            font-family: 'Poppins', sans-serif;
+            max-width: 1200px;
             margin: 30px auto;
-            background: var(--dark-blue); /* Latar belakang body sesuai bagian kiri gambar */
+            background: var(--dark-blue);
             padding: 30px;
             border-radius: 12px;
             color: var(--text-dark);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            overflow-x: hidden; /* Mencegah scroll horizontal yang tidak diinginkan */
+            overflow-x: hidden;
         }
 
         .container {
             display: flex;
-            flex-direction: column; /* Default column for mobile */
-            gap: 0; /* No gap for this specific layout */
+            flex-direction: column;
+            gap: 0;
         }
 
         .intro-section {
@@ -40,12 +42,12 @@
             border-top-left-radius: 10px;
             border-top-right-radius: 10px;
             position: relative;
-            z-index: 1; /* Ensure it's above other elements if needed */
+            z-index: 1;
         }
 
         .intro-section h2 {
-            font-family: 'Playfair Display', serif; /* Font bergaya untuk judul utama */
-            font-size: 3.5em; /* Ukuran font lebih besar */
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5em;
             margin-bottom: 10px;
             letter-spacing: 2px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
@@ -58,7 +60,7 @@
         }
 
         .menu-section {
-            background: var(--light-cream); /* Latar belakang putih/krem untuk bagian menu */
+            background: var(--light-cream);
             padding: 40px;
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
@@ -68,7 +70,7 @@
         .menu-section h2.section-title {
             text-align: center;
             margin-bottom: 30px;
-            color: var(--dark-blue); /* Warna judul section sesuai warna body awal */
+            color: var(--dark-blue);
             font-size: 2em;
             letter-spacing: 1px;
             position: relative;
@@ -83,24 +85,65 @@
             transform: translateX(-50%);
             width: 80px;
             height: 3px;
-            background-color: var(--dark-blue); /* Garis bawah pada judul */
+            background-color: var(--dark-blue);
             border-radius: 2px;
+        }
+
+        /* Styling untuk Filter dan Pencarian */
+        .controls {
+            display: flex;
+            flex-wrap: wrap; /* Untuk responsivitas di layar kecil */
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center; /* Pusatkan kontrol */
+            align-items: center;
+        }
+
+        .controls input[type="text"],
+        .controls select {
+            padding: 12px 18px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s ease;
+            width: 100%; /* Default 100% width for smaller screens */
+            max-width: 300px; /* Max width for inputs */
+            box-sizing: border-box;
+        }
+
+        .controls input[type="text"]:focus,
+        .controls select:focus {
+            border-color: var(--input-focus-border);
+            box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.2);
+        }
+
+        .controls select {
+            background-color: white;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-6.5%200-13%205.7-13%2013%200%206.5%205.7%2013%2013%2013h255.2c6.5%200%2013-5.7%2013-13%200-4.5-1.7-8.8-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%, 0 0;
+            background-size: 12px auto, 100%;
         }
 
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Mengatur kolom yang lebih fleksibel */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 25px;
         }
 
         .menu-item {
-            background: #ffffff; /* Item menu tetap putih bersih */
-            border-radius: 10px; /* Sudut sedikit membulat */
+            background: #ffffff;
+            border-radius: 10px;
             padding: 25px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Bayangan yang lebih lembut */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            border: 1px solid #eee; /* Border sangat tipis */
-            display: flex; /* Menggunakan flexbox untuk layout di dalam item */
+            border: 1px solid #eee;
+            display: flex;
             flex-direction: column;
         }
 
@@ -111,7 +154,7 @@
 
         .menu-item h3 {
             margin: 0 0 8px 0;
-            color: var(--dark-blue); /* Judul item menu */
+            color: var(--dark-blue);
             font-size: 1.4em;
             font-weight: 600;
         }
@@ -127,16 +170,16 @@
             color: var(--text-light);
             font-size: 0.95em;
             line-height: 1.6;
-            flex-grow: 1; /* Deskripsi mengisi ruang yang tersisa */
-            margin-bottom: 15px; /* Jarak sebelum harga */
+            flex-grow: 1;
+            margin-bottom: 15px;
         }
 
         .menu-item .price {
-            color: var(--accent-orange); /* Harga dengan warna aksen untuk penekanan */
+            color: var(--accent-orange);
             font-size: 1.5em;
             font-weight: 700;
             text-align: right;
-            margin-top: auto; /* Mendorong harga ke bawah */
+            margin-top: auto;
         }
 
         .empty-message {
@@ -153,27 +196,32 @@
         /* Media queries untuk tampilan dua kolom pada layar besar */
         @media (min-width: 768px) {
             .container {
-                flex-direction: row; /* Tampilan dua kolom pada desktop */
-                border-radius: 12px; /* Radius pada container utama */
-                overflow: hidden; /* Memastikan radius terlihat */
+                flex-direction: row;
+                border-radius: 12px;
+                overflow: hidden;
             }
 
             .intro-section {
-                flex: 1; /* Mengambil setengah lebar */
-                border-radius: 0; /* Hilangkan radius individu karena sudah di container */
-                padding: 60px 40px; /* Padding lebih besar */
+                flex: 1;
+                border-radius: 0;
+                padding: 60px 40px;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
             }
 
             .menu-section {
-                flex: 2; /* Mengambil dua pertiga lebar (bisa disesuaikan) */
-                border-radius: 0; /* Hilangkan radius individu */
+                flex: 2;
+                border-radius: 0;
                 padding: 60px 50px;
             }
             body {
-                padding: 0; /* Hapus padding body jika container sudah mengurus padding */
+                padding: 0;
+            }
+
+            .controls input[type="text"],
+            .controls select {
+                width: auto;
             }
         }
     </style>
@@ -183,24 +231,82 @@
         <div class="intro-section">
             <h2>Indonesian Menu</h2>
             <p>Indonesian foods when you need a taste at home</p>
-            </div>
+        </div>
 
         <div class="menu-section">
             <h2 class="section-title">🍽️ Daftar Menu Makanan</h2>
 
-            <div class="menu-grid">
+            <div class="controls">
+                <input type="text" id="searchMenu" onkeyup="filterMenu()" placeholder="Cari menu...">
+                <select id="filterCategory" onchange="filterMenu()">
+                    <option value="all">Semua Kategori</option>
+                    {{-- Pastikan variabel $kategoris dikirim dari controller --}}
+                    @foreach($kategoris as $category)
+                        <option value="{{ $category->nama }}">{{ $category->nama }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="menu-grid" id="menuList">
                 @forelse($menus as $menu)
-                    <div class="menu-item">
+                    <div class="menu-item" data-category="{{ $menu->kategori->nama }}">
                         <h3>{{ $menu->nama }}</h3>
                         <p class="category"><strong>Kategori:</strong> {{ $menu->kategori->nama }}</p>
                         <p class="description">{{ $menu->deskripsi }}</p>
                         <p class="price">Rp{{ number_format($menu->harga, 0, ',', '.') }}</p>
                     </div>
                 @empty
-                    <p class="empty-message">Tidak ada menu tersedia saat ini.</p>
+                    <p class="empty-message" id="noMenuFound">Tidak ada menu tersedia saat ini.</p>
                 @endforelse
             </div>
+            <p class="empty-message" id="noResults" style="display: none;">Menu tidak ditemukan.</p>
         </div>
     </div>
+
+    <script>
+        function filterMenu() {
+            const searchInput = document.getElementById('searchMenu');
+            const filterCategory = document.getElementById('filterCategory');
+            const menuItems = document.querySelectorAll('.menu-item');
+            const noResultsMessage = document.getElementById('noResults');
+            const noMenuFoundInitial = document.getElementById('noMenuFound'); // Pesan awal jika DB kosong
+
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedCategory = filterCategory.value.toLowerCase();
+
+            let foundMenus = 0;
+
+            // Sembunyikan pesan awal jika ada filter/pencarian
+            if (noMenuFoundInitial) {
+                noMenuFoundInitial.style.display = 'none';
+            }
+
+            menuItems.forEach(item => {
+                const menuName = item.querySelector('h3').textContent.toLowerCase();
+                const menuDescription = item.querySelector('.description').textContent.toLowerCase();
+                const menuCategory = item.getAttribute('data-category').toLowerCase();
+
+                const matchesSearch = menuName.includes(searchTerm) || menuDescription.includes(searchTerm);
+                const matchesCategory = selectedCategory === 'all' || menuCategory === selectedCategory;
+
+                if (matchesSearch && matchesCategory) {
+                    item.style.display = 'flex'; // Tampilkan item
+                    foundMenus++;
+                } else {
+                    item.style.display = 'none'; // Sembunyikan item
+                }
+            });
+
+            // Tampilkan atau sembunyikan pesan "Menu tidak ditemukan"
+            if (foundMenus === 0) {
+                noResultsMessage.style.display = 'block';
+            } else {
+                noResultsMessage.style.display = 'none';
+            }
+        }
+
+        // Panggil filterMenu saat halaman dimuat untuk memastikan tampilan awal
+        document.addEventListener('DOMContentLoaded', filterMenu);
+    </script>
 </body>
 </html>
