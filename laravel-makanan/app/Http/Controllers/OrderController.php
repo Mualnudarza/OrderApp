@@ -6,7 +6,7 @@ namespace App\Http\Controllers;
 use App\Models\Menu;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\Kategori; // Pastikan ini di-import
+use App\Models\Kategori;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -101,8 +101,8 @@ class OrderController extends Controller
     public function showOrders()
     {
         // Mengambil semua pesanan beserta item pesanan dan detail menu terkait
-        $orders = Order::with('orderItems.menu')->orderBy('created_at', 'desc')->get();
-        // Mengubah nama view dari 'orders' menjadi 'laporanpesanan'
+        // Mengubah urutan dari 'desc' menjadi 'asc' agar data terbaru berada di bawah (FIFO)
+        $orders = Order::with('orderItems.menu')->orderBy('created_at', 'asc')->get();
         return view('laporanpesanan', compact('orders'));
     }
 
