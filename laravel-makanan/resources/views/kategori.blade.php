@@ -1,96 +1,98 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Kategori Makanan</title>
-</head>
-<body style="font-family: sans-serif; max-width: 700px; margin: 30px auto; background: #f5f5f5; padding: 30px; border-radius: 12px;">
+@extends('layouts.app')
 
-    <h2 style="text-align:center; color:#333;">Kategori Makanan</h2>
+@section('title', 'Manajemen Kategori')
 
-    {{-- FORM TAMBAH / EDIT --}}
-    <form action="{{ isset($kategori) ? '/kategori/update/' . $kategori->id : '/kategori' }}" method="POST" style="margin-top: 20px;">
-        @csrf
-        <input type="text" name="nama" placeholder="Nama kategori"
-               value="{{ isset($kategori) ? $kategori->nama : '' }}"
-               style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc;">
-        <button type="submit"
-                style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 6px;">
-            {{ isset($kategori) ? 'Update' : 'Simpan' }}
-        </button>
-    </form>
+@section('content')
+<div class="row">
+    <div class="col-lg-8">
+        {{-- Form Tambah / Edit Kategori --}}
+        <div class="card mb-4 p-4">
+            <h2 class="h4 card-header">Tambah / Edit Kategori Makanan</h2>
+            <div class="card-body">
+                <form action="{{ isset($kategori) ? '/kategori/update/' . $kategori->id : '/kategori' }}" method="POST">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="namaKategori" class="form-label">Nama Kategori</label>
+                        <input type="text" class="form-control" id="namaKategori" name="nama" placeholder="Nama kategori" value="{{ isset($kategori) ? $kategori->nama : '' }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-success mt-3">
+                        {{ isset($kategori) ? 'Update' : 'Simpan' }}
+                    </button>
+                </form>
+            </div>
+        </div>
 
-    {{-- LIST KATEGORI --}}
-    <h3 style="margin-top: 30px;">Daftar Kategori</h3>
-    <ul style="list-style: none; padding-left: 0;">
-        @foreach($kategoris as $kategori)
-            <li style="background: white; padding: 10px 15px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                {{ $kategori->nama }}
-
-                <div>
-                    <button onclick="openModal('editKategoriModal{{ $kategori->id }}')"
-                            style="margin-right: 10px; color: blue; background: none; border: none; cursor: pointer;">Edit</button>
-
-                    <button onclick="openModal('deleteKategoriModal{{ $kategori->id }}')"
-                            style="color: red; background: none; border: none; cursor: pointer;">Hapus</button>
-                </div>
-            </li>
-
-            {{-- Modal Edit --}}
-            <div id="editKategoriModal{{ $kategori->id }}" class="modal">
-                <div class="modal-content">
-                    <h3>Edit Kategori</h3>
-                    <form action="/kategori/update/{{ $kategori->id }}" method="POST">
-                        @csrf
-                        <input type="text" name="nama" value="{{ $kategori->nama }}" style="width: 100%; padding: 10px;">
-                        <div style="margin-top: 10px;">
-                            <button type="submit" style="background: #2196F3; color: white; padding: 8px 16px;">Simpan</button>
-                            <button type="button" onclick="closeModal('editKategoriModal{{ $kategori->id }}')" style="margin-left: 10px;">Batal</button>
+        {{-- Daftar Kategori --}}
+        <div class="card p-4">
+            <h3 class="h4 card-header">Daftar Kategori</h3>
+            <div class="card-body">
+                <div class="list-group">
+                    @forelse($kategoris as $kategori)
+                        <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap mb-3 p-3">
+                            <span class="text-dark fw-bold">{{ $kategori->nama }}</span>
+                            <div class="d-flex mt-2 mt-md-0">
+                                <button type="button" class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#editKategoriModal{{ $kategori->id }}">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteKategoriModal{{ $kategori->id }}">
+                                    <i class="bi bi-trash"></i> Hapus
+                                </button>
+                            </div>
                         </div>
-                    </form>
+
+                        <div class="modal fade" id="editKategoriModal{{ $kategori->id }}" tabindex="-1" aria-labelledby="editKategoriModalLabel{{ $kategori->id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editKategoriModalLabel{{ $kategori->id }}">Edit Kategori</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form action="/kategori/update/{{ $kategori->id }}" method="POST">
+                                        @csrf
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="editNamaKategori{{ $kategori->id }}" class="form-label">Nama Kategori</label>
+                                                <input type="text" class="form-control" id="editNamaKategori{{ $kategori->id }}" name="nama" value="{{ $kategori->nama }}" required>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="deleteKategoriModal{{ $kategori->id }}" tabindex="-1" aria-labelledby="deleteKategoriModalLabel{{ $kategori->id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteKategoriModalLabel{{ $kategori->id }}">Hapus Kategori?</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Apakah kamu yakin ingin menghapus kategori <strong>{{ $kategori->nama }}</strong>?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                        <form action="/kategori/delete/{{ $kategori->id }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="alert alert-info text-center py-4 rounded-3 shadow-sm" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i> Tidak ada kategori makanan.
+                        </div>
+                    @endforelse
                 </div>
             </div>
-
-            {{-- Modal Delete --}}
-            <div id="deleteKategoriModal{{ $kategori->id }}" class="modal">
-                <div class="modal-content">
-                    <h3>Hapus Kategori?</h3>
-                    <p>Apakah kamu yakin ingin menghapus kategori <strong>{{ $kategori->nama }}</strong>?</p>
-                    <form action="/kategori/delete/{{ $kategori->id }}" method="POST">
-                        @csrf
-                        <button type="submit" style="background: red; color: white; padding: 8px 16px;">Ya, Hapus</button>
-                        <button type="button" onclick="closeModal('deleteKategoriModal{{ $kategori->id }}')" style="margin-left: 10px;">Batal</button>
-                    </form>
-                </div>
-            </div>
-        @endforeach
-    </ul>
-
-    {{-- CSS Modal & Script --}}
-    <style>
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.4);
-        }
-        .modal-content {
-            background-color: #fff;
-            margin: 15% auto;
-            padding: 20px;
-            width: 80%;
-            max-width: 400px;
-            border-radius: 10px;
-        }
-    </style>
-    <script>
-        function openModal(id) {
-            document.getElementById(id).style.display = "block";
-        }
-        function closeModal(id) {
-            document.getElementById(id).style.display = "none";
-        }
-    </script>
-
-</body>
-</html>
+        </div>
+    </div>
+    {{-- You can add a right sidebar for other content in kategori page too if needed --}}
+</div>
+@endsection

@@ -1,125 +1,284 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Menu Makanan</title>
-</head>
-<body style="font-family: sans-serif; max-width: 800px; margin: 30px auto; background: #f9f9f9; padding: 30px; border-radius: 12px;">
+@extends('layouts.app')
 
-    <h2 style="text-align:center; color:#333;">Tambah Menu Makanan</h2>
+@section('title', 'Master Data')
 
-    <form action="{{ isset($menu) ? '/menu/update/' . $menu->id : '/menu' }}" method="POST" style="margin-top: 20px;">
-        @csrf
-        <input type="text" name="nama" placeholder="Nama makanan" value="{{ isset($menu) ? $menu->nama : '' }}"
-               style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc;">
-        <input type="number" name="harga" placeholder="Harga" value="{{ isset($menu) ? $menu->harga : '' }}"
-               style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc;">
-        <textarea name="deskripsi" placeholder="Deskripsi"
-                  style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc;">{{ isset($menu) ? $menu->deskripsi : '' }}</textarea>
-        <select name="kategori_id" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #ccc;">
-            @foreach($kategoris as $kategori)
-                <option value="{{ $kategori->id }}" {{ isset($menu) && $menu->kategori_id == $kategori->id ? 'selected' : '' }}>
-                    {{ $kategori->nama }}
-                </option>
-            @endforeach
-        </select>
-        <button type="submit"
-                style="padding: 10px 20px; background-color: #2196F3; color: white; border: none; border-radius: 6px;">
-            {{ isset($menu) ? 'Update' : 'Simpan' }}
-        </button>
-    </form>
+@section('content')
+<div class="row">
+    {{-- Master Grid Section --}}
+    <div class="col-lg-8 mb-4">
+        <div class="card p-4"> {{-- Using p-4 for padding inside the card --}}
+            <h2 class="h4 card-header">Master Data Overview</h2>
 
-    <h3 style="margin-top: 30px;">Filter Berdasarkan Kategori</h3>
-    <ul style="display: flex; flex-wrap: wrap; list-style: none; padding-left: 0;">
-        @foreach($kategoris as $kategori)
-            <li style="margin: 5px;">
-                <a href="/menu/kategori/{{ $kategori->id }}"
-                   style="display: inline-block; padding: 8px 12px; background: #eee; border-radius: 6px; text-decoration: none; color: #333;">
-                    {{ $kategori->nama }}
+            <div class="master-grid mt-4">
+                {{-- Example Master Items based on your initial image --}}
+                <a href="#" class="master-item">
+                    <i class="bi bi-person-fill"></i>
+                    <span>User</span>
                 </a>
-            </li>
-        @endforeach
-    </ul>
+                <a href="#" class="master-item">
+                    <i class="bi bi-building"></i>
+                    <span>PT</span>
+                </a>
+                <a href="#" class="master-item">
+                    <i class="bi bi-gas-can-fill"></i>
+                    <span>Tabung</span>
+                </a>
+                <a href="#" class="master-item">
+                    <i class="bi bi-truck"></i>
+                    <span>Tabung PT</span>
+                </a>
+                <a href="#" class="master-item">
+                    <i class="bi bi-credit-card-fill"></i>
+                    <span>Nopol</span>
+                </a>
+                <a href="#" class="master-item">
+                    <i class="bi bi-fuel-pump-fill"></i>
+                    <span>SPBE</span>
+                </a>
+                <a href="#" class="master-item">
+                    <i class="bi bi-shop"></i>
+                    <span>Pangkalan</span>
+                </a>
+                <a href="#" class="master-item">
+                    <i class="bi bi-box-seam-fill"></i>
+                    <span>Gudang</span>
+                </a>
+                <a href="#" class="master-item">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+                {{-- You can add more master items as needed --}}
+            </div>
+        </div>
 
-    <h3 style="margin-top: 30px;">Daftar Menu {{ isset($kategoriAktif) ? 'Kategori: ' . $kategoriAktif->nama : '' }}</h3>
-    <ul style="list-style: none; padding-left: 0;">
-        @forelse($menus as $menu)
-            <li style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.05);">
-                <strong style="font-size: 16px;">{{ $menu->nama }}</strong>
-                <span style="color: #888;"> - Rp{{ number_format($menu->harga, 0, ',', '.') }}</span><br>
-                <em style="color: #666;">Kategori: {{ $menu->kategori->nama }}</em><br>
-                <p style="margin-top: 5px;">{{ $menu->deskripsi }}</p>
-
-                <button onclick="openModal('editMenuModal{{ $menu->id }}')" style="color: blue; background: none; border: none; cursor: pointer;">Edit</button>
-                <button onclick="openModal('deleteMenuModal{{ $menu->id }}')" style="color: red; background: none; border: none; cursor: pointer;">Hapus</button>
-            </li>
-
-            {{-- Modal Edit --}}
-            <div id="editMenuModal{{ $menu->id }}" class="modal">
-                <div class="modal-content">
-                    <h3>Edit Menu</h3>
-                    <form action="/menu/update/{{ $menu->id }}" method="POST">
-                        @csrf
-                        <input type="text" name="nama" value="{{ $menu->nama }}" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-                        <input type="number" name="harga" value="{{ $menu->harga }}" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-                        <textarea name="deskripsi" style="width: 100%; padding: 10px; margin-bottom: 10px;">{{ $menu->deskripsi }}</textarea>
-                        <select name="kategori_id" style="width: 100%; padding: 10px;">
+        {{-- Form Tambah/Edit Menu Makanan (Adapted to new style) --}}
+        <div class="card mt-4 p-4">
+            <h2 class="h4 card-header">Tambah / Edit Menu Makanan</h2>
+            <div class="card-body">
+                <form action="{{ isset($menu) ? '/menu/update/' . $menu->id : '/menu' }}" method="POST">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="nama" class="form-label">Nama Makanan</label>
+                        <input type="text" class="form-control" id="nama" name="nama" placeholder="Nama makanan" value="{{ isset($menu) ? $menu->nama : '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="harga" class="form-label">Harga</label>
+                        <input type="number" class="form-control" id="harga" name="harga" placeholder="Harga" value="{{ isset($menu) ? $menu->harga : '' }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="deskripsi" class="form-label">Deskripsi</label>
+                        <textarea class="form-control" id="deskripsi" name="deskripsi" placeholder="Deskripsi" rows="3">{{ isset($menu) ? $menu->deskripsi : '' }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="kategori_id" class="form-label">Kategori</label>
+                        <select class="form-select" id="kategori_id" name="kategori_id" required>
                             @foreach($kategoris as $kategori)
-                                <option value="{{ $kategori->id }}" {{ $menu->kategori_id == $kategori->id ? 'selected' : '' }}>
+                                <option value="{{ $kategori->id }}" {{ isset($menu) && $menu->kategori_id == $kategori->id ? 'selected' : '' }}>
                                     {{ $kategori->nama }}
                                 </option>
                             @endforeach
                         </select>
-                        <div style="margin-top: 10px;">
-                            <button type="submit" style="background: #2196F3; color: white; padding: 8px 16px;">Simpan</button>
-                            <button type="button" onclick="closeModal('editMenuModal{{ $menu->id }}')" style="margin-left: 10px;">Batal</button>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">
+                        {{ isset($menu) ? 'Update' : 'Simpan' }}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {{-- Filter Berdasarkan Kategori --}}
+        <div class="card mt-4 p-4">
+            <h3 class="h4 card-header">Filter Berdasarkan Kategori</h3>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach($kategoris as $kategori)
+                        <a href="/menu/kategori/{{ $kategori->id }}" class="btn btn-outline-secondary">
+                            {{ $kategori->nama }}
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        {{-- Daftar Menu --}}
+        <div class="card mt-4 p-4">
+            <h3 class="h4 card-header">Daftar Menu {{ isset($kategoriAktif) ? 'Kategori: ' . $kategoriAktif->nama : '' }}</h3>
+            <div class="card-body">
+                <div class="list-group">
+                    @forelse($menus as $menu)
+                        <div class="list-group-item d-flex justify-content-between align-items-center flex-wrap mb-3 p-3">
+                            <div class="flex-grow-1 me-3">
+                                <h5 class="mb-1 text-primary">{{ $menu->nama }} <small class="text-muted"> - Rp{{ number_format($menu->harga, 0, ',', '.') }}</small></h5>
+                                <small class="d-block text-secondary mb-2">Kategori: {{ $menu->kategori->nama }}</small>
+                                <p class="mb-0 text-dark">{{ $menu->deskripsi }}</p>
+                            </div>
+                            <div class="d-flex mt-2 mt-md-0">
+                                <button type="button" class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#editMenuModal{{ $menu->id }}">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteMenuModal{{ $menu->id }}">
+                                    <i class="bi bi-trash"></i> Hapus
+                                </button>
+                            </div>
                         </div>
-                    </form>
+
+                        <div class="modal fade" id="editMenuModal{{ $menu->id }}" tabindex="-1" aria-labelledby="editMenuModalLabel{{ $menu->id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editMenuModalLabel{{ $menu->id }}">Edit Menu</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form action="/menu/update/{{ $menu->id }}" method="POST">
+                                        @csrf
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="editNama{{ $menu->id }}" class="form-label">Nama Makanan</label>
+                                                <input type="text" class="form-control" id="editNama{{ $menu->id }}" name="nama" value="{{ $menu->nama }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="editHarga{{ $menu->id }}" class="form-label">Harga</label>
+                                                <input type="number" class="form-control" id="editHarga{{ $menu->id }}" name="harga" value="{{ $menu->harga }}" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="editDeskripsi{{ $menu->id }}" class="form-label">Deskripsi</label>
+                                                <textarea class="form-control" id="editDeskripsi{{ $menu->id }}" name="deskripsi" rows="3">{{ $menu->deskripsi }}</textarea>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="editKategori{{ $menu->id }}" class="form-label">Kategori</label>
+                                                <select class="form-select" id="editKategori{{ $menu->id }}" name="kategori_id" required>
+                                                    @foreach($kategoris as $kategori)
+                                                        <option value="{{ $kategori->id }}" {{ $menu->kategori_id == $kategori->id ? 'selected' : '' }}>
+                                                            {{ $kategori->nama }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="deleteMenuModal{{ $menu->id }}" tabindex="-1" aria-labelledby="deleteMenuModalLabel{{ $menu->id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteMenuModalLabel{{ $menu->id }}">Hapus Menu?</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Apakah kamu yakin ingin menghapus menu <strong>{{ $menu->nama }}</strong>?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                        <form action="/menu/delete/{{ $menu->id }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="alert alert-info text-center py-4 rounded-3 shadow-sm" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i> Tidak ada menu makanan untuk kategori ini.
+                        </div>
+                    @endforelse
                 </div>
             </div>
+        </div>
+    </div>
 
-            {{-- Modal Delete --}}
-            <div id="deleteMenuModal{{ $menu->id }}" class="modal">
-                <div class="modal-content">
-                    <h3>Hapus Menu?</h3>
-                    <p>Apakah kamu yakin ingin menghapus menu <strong>{{ $menu->nama }}</strong>?</p>
-                    <form action="/menu/delete/{{ $menu->id }}" method="POST">
-                        @csrf
-                        <button type="submit" style="background: red; color: white; padding: 8px 16px;">Ya, Hapus</button>
-                        <button type="button" onclick="closeModal('deleteMenuModal{{ $menu->id }}')" style="margin-left: 10px;">Batal</button>
-                    </form>
+    {{-- Right Sidebar / Calendar Example (from your design) --}}
+    <div class="col-lg-4 mb-4">
+        <div class="calendar-card">
+            <div class="card-header">
+                <h5>Calendar</h5>
+                <i class="bi bi-bell"></i>
+            </div>
+            <div class="event-list">
+                <div class="event-date">Oct 20, 2021</div>
+                <div class="event-item">
+                    <div class="event-time">10:00</div>
+                    <div class="event-details">
+                        <strong>Dribbble shot</strong>
+                        <span>Meet Up</span>
+                    </div>
+                </div>
+                <div class="event-item">
+                    <div class="event-time">13:20</div>
+                    <div class="event-details">
+                        <strong>Design</strong>
+                        <span>Task Managment</span>
+                    </div>
+                </div>
+
+                <div class="event-date">Oct 21, 2021</div>
+                <div class="event-item">
+                    <div class="event-time">10:00</div>
+                    <div class="event-details">
+                        <strong>UX Research</strong>
+                        <span>Sleep App</span>
+                    </div>
+                </div>
+                <div class="event-item">
+                    <div class="event-time">13:20</div>
+                    <div class="event-details">
+                        <strong>Design</strong>
+                        <span>Task Managment</span>
+                    </div>
+                </div>
+
+                <div class="event-date">Oct 22, 2021</div>
+                <div class="event-item">
+                    <div class="event-time">10:00</div>
+                    <div class="event-details">
+                        <strong>Dribbble Shot</strong>
+                        <span>Meet Up</span>
+                    </div>
+                </div>
+                <div class="event-item">
+                    <div class="event-time">11:00</div>
+                    <div class="event-details">
+                        <strong>Design</strong>
+                        <span>Mobile App</span>
+                    </div>
                 </div>
             </div>
-        @empty
-            <li>Tidak ada menu makanan untuk kategori ini.</li>
-        @endforelse
-    </ul>
+        </div>
 
-    {{-- Modal CSS & Script --}}
-    <style>
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.4);
-        }
-        .modal-content {
-            background-color: #fff;
-            margin: 15% auto;
-            padding: 20px;
-            width: 80%;
-            max-width: 450px;
-            border-radius: 10px;
-        }
-    </style>
-    <script>
-        function openModal(id) {
-            document.getElementById(id).style.display = "block";
-        }
-        function closeModal(id) {
-            document.getElementById(id).style.display = "none";
-        }
-    </script>
+        {{-- Example Stats Card (can be removed or repurposed) --}}
+        <div class="card mt-4 p-4">
+            <h5 class="h6 text-muted mb-3">Today's Stats</h5>
+            <div class="d-flex justify-content-around text-center">
+                <div>
+                    <h4 class="mb-1 text-primary">28 h</h4>
+                    <small class="text-muted">Tracked Time</small>
+                </div>
+                <div>
+                    <h4 class="mb-1 text-success">18</h4>
+                    <small class="text-muted">Finished Tasks</small>
+                </div>
+                <div>
+                    <h4 class="mb-1 text-info">3</h4>
+                    <small class="text-muted">New Widgets</small>
+                </div>
+            </div>
+        </div>
 
-</body>
-</html>
+        {{-- Another example card (e.g., Pro Plan from design) --}}
+        <div class="card mt-4 p-4 text-center">
+            <i class="bi bi-gem fs-1 text-warning mb-3"></i>
+            <h5 class="text-primary mb-2">$9.99 p/m</h5>
+            <p class="mb-3 text-muted">Pro Plan <br> More productivity with premium</p>
+            <button class="btn btn-outline-primary btn-sm">Upgrade Now</button>
+        </div>
+
+    </div>
+</div>
+@endsection
