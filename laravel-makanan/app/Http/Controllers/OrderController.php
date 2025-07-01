@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Models\Menu;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Kategori; // Pastikan ini di-import
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +19,8 @@ class OrderController extends Controller
     {
         // Mengambil semua menu beserta kategori terkait
         $menus = Menu::with('kategori')->get();
-        return view('order', compact('menus'));
+        $kategoris = Kategori::all(); // Ambil semua kategori
+        return view('order', compact('menus', 'kategoris')); // Kirim kategori ke view
     }
 
     /**

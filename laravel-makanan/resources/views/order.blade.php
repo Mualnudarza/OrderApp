@@ -22,50 +22,92 @@
 
                     <form id="orderForm" action="{{ route('order.store') }}" method="POST">
                         @csrf
-                        <div class="mb-3">
-                            <label for="nama_pemesan" class="form-label">Nama Pemesan</label>
-                            <input type="text" class="form-control" id="nama_pemesan" name="nama_pemesan" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="meja_nomor" class="form-label">Nomor Meja (Opsional)</label>
-                            <input type="text" class="form-control" id="meja_nomor" name="meja_nomor">
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label for="nama_pemesan" class="form-label">Nama Pemesan</label>
+                                <input type="text" class="form-control" id="nama_pemesan" name="nama_pemesan" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="meja_nomor" class="form-label">Nomor Meja (Opsional)</label>
+                                <input type="text" class="form-control" id="meja_nomor" name="meja_nomor">
+                            </div>
                         </div>
 
-                        <h5 class="mt-4">Pilih Menu:</h5>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
+                        <h5 class="mt-4">Daftar Menu Tersedia:</h5>
+                        <div class="row mb-4 g-3">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" id="searchMenu" placeholder="Cari nama menu...">
+                            </div>
+                            <div class="col-md-6">
+                                <select class="form-select" id="filterCategory">
+                                    <option value="all">Semua Kategori</option>
+                                    @foreach($kategoris as $kategori)
+                                        <option value="{{ $kategori->id }}">{{ $kategori->nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4" id="menuListContainer">
+                            @forelse($menus as $menu)
+                                <div class="col menu-item"
+                                     data-menu-id="{{ $menu->id }}"
+                                     data-menu-name="{{ $menu->nama }}"
+                                     data-menu-price="{{ $menu->harga }}"
+                                     data-category-id="{{ $menu->kategori->id ?? 'uncategorized' }}"
+                                     data-category-name="{{ $menu->kategori->nama ?? 'Tidak Berkategori' }}">
+                                    <div class="card h-100 shadow-sm">
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title mb-1">{{ $menu->nama }}</h5>
+                                            <p class="card-text text-muted small mb-2">{{ $menu->kategori->nama ?? 'Tidak Berkategori' }}</p>
+                                            <p class="card-text fw-bold text-primary fs-5 mt-auto">Rp{{ number_format($menu->harga, 0, ',', '.') }}</p>
+                                            <div class="d-flex align-items-center mt-2">
+                                                <input type="number" class="form-control quantity-input-item me-2" value="1" min="1" style="width: 80px;">
+                                                <button type="button" class="btn btn-sm btn-success add-to-cart-btn w-100">
+                                                    <i class="bi bi-plus-circle"></i> Tambah
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="col-12">
+                                    <div class="alert alert-info text-center py-4 rounded-3 shadow-sm" role="alert">
+                                        <i class="bi bi-info-circle-fill me-2"></i> Tidak ada menu tersedia.
+                                    </div>
+                                </div>
+                            @endforelse
+                        </div>
+
+                        <h5 class="mt-4">Keranjang Pesanan:</h5>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Pilih</th>
-                                        <th>Nama Menu</th>
-                                        <th>Kategori</th>
-                                        <th>Harga</th>
+                                        <th>Menu</th>
                                         <th>Kuantitas</th>
+                                        <th>Harga Satuan</th>
+                                        <th>Subtotal</th>
+                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @forelse($menus as $menu)
-                                        <tr>
-                                            <td>
-                                                <input type="checkbox" class="menu-checkbox" data-menu-id="{{ $menu->id }}" data-menu-name="{{ $menu->nama }}" data-menu-price="{{ $menu->harga }}" onchange="toggleQuantity(this)">
-                                            </td>
-                                            <td>{{ $menu->nama }}</td>
-                                            <td>{{ $menu->kategori->nama ?? 'Tidak Berkategori' }}</td>
-                                            <td>Rp{{ number_format($menu->harga, 0, ',', '.') }}</td>
-                                            <td>
-                                                <input type="number" class="form-control quantity-input" value="0" min="0" style="width: 80px;" disabled>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="5" class="text-center">Tidak ada menu tersedia.</td>
-                                        </tr>
-                                    @endforelse
+                                <tbody id="cartItemsBody">
+                                    <!-- Cart items will be dynamically added here -->
+                                    <tr id="emptyCartMessage">
+                                        <td colspan="5" class="text-center text-muted">Keranjang kosong.</td>
+                                    </tr>
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="3" class="text-end">Total Keseluruhan:</th>
+                                        <th id="cartGrandTotal" class="text-end">Rp0</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
                             </table>
                         </div>
 
-                        <button type="button" class="btn btn-primary mt-3 w-100" data-bs-toggle="modal" data-bs-target="#invoiceModal" id="previewOrderBtn">
+                        <button type="button" class="btn btn-primary mt-3 w-100" id="previewOrderBtn">
                             Buat Pesanan
                         </button>
                     </form>
@@ -86,6 +128,7 @@
             <div class="modal-body" id="invoiceContent">
                 <!-- Invoice content will be loaded here by JavaScript -->
                 <style>
+                    /* Inline CSS for Invoice, consistent with previous design */
                     .invoice-container {
                         font-family: 'Inter', sans-serif;
                         padding: 20px;
@@ -205,106 +248,311 @@
     </div>
 </div>
 
+<!-- Validation Modal -->
+<div class="modal fade" id="validationModal" tabindex="-1" aria-labelledby="validationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="validationModalLabel">Peringatan!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="validationMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    function toggleQuantity(checkbox) {
-        const quantityInput = checkbox.closest('tr').querySelector('.quantity-input');
-        if (checkbox.checked) {
-            quantityInput.disabled = false;
-            quantityInput.value = 1; // Set default quantity to 1 when checked
-        } else {
-            quantityInput.disabled = true;
-            quantityInput.value = 0; // Reset quantity to 0 when unchecked
+    // Objek untuk menyimpan item yang dipilih di keranjang
+    let cart = {};
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const menuItems = document.querySelectorAll('.menu-item');
+        const searchInput = document.getElementById('searchMenu');
+        const filterCategory = document.getElementById('filterCategory');
+        const cartItemsBody = document.getElementById('cartItemsBody');
+        const cartGrandTotal = document.getElementById('cartGrandTotal');
+        const emptyCartMessage = document.getElementById('emptyCartMessage');
+        const previewOrderBtn = document.getElementById('previewOrderBtn');
+        const processOrderBtn = document.getElementById('processOrderBtn');
+        const printInvoiceBtn = document.getElementById('printInvoiceBtn');
+        const orderForm = document.getElementById('orderForm');
+        const invoiceModalInstance = new bootstrap.Modal(document.getElementById('invoiceModal'));
+
+
+        // Get validation modal elements
+        const validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
+        const validationMessage = document.getElementById('validationMessage');
+
+
+        // Fungsi untuk memfilter menu berdasarkan pencarian dan kategori
+        function filterMenus() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedCategoryId = filterCategory.value;
+
+            menuItems.forEach(item => {
+                const menuName = item.dataset.menuName.toLowerCase();
+                const categoryId = item.dataset.categoryId;
+
+                const matchesSearch = menuName.includes(searchTerm);
+                const matchesCategory = selectedCategoryId === 'all' || categoryId === selectedCategoryId;
+
+                if (matchesSearch && matchesCategory) {
+                    item.style.display = 'block'; // Tampilkan item
+                } else {
+                    item.style.display = 'none'; // Sembunyikan item
+                }
+            });
         }
-    }
 
-    document.getElementById('previewOrderBtn').addEventListener('click', function() {
-        const namaPemesan = document.getElementById('nama_pemesan').value;
-        const mejaNomor = document.getElementById('meja_nomor').value;
-        const selectedMenus = [];
-        let totalHarga = 0;
+        // Fungsi untuk memperbarui tampilan keranjang pesanan
+        function renderCart() {
+            cartItemsBody.innerHTML = ''; // Bersihkan isi keranjang
+            let currentGrandTotal = 0;
+            let hasItems = false;
 
-        document.querySelectorAll('.menu-checkbox:checked').forEach(checkbox => {
-            const row = checkbox.closest('tr');
-            const menuId = checkbox.dataset.menuId;
-            const menuName = checkbox.dataset.menuName;
-            const menuPrice = parseFloat(checkbox.dataset.menuPrice);
-            const quantity = parseInt(row.querySelector('.quantity-input').value);
+            for (const menuId in cart) {
+                const item = cart[menuId];
+                if (item.quantity > 0) {
+                    hasItems = true;
+                    const row = `
+                        <tr>
+                            <td>${item.name}</td>
+                            <td>
+                                <input type="number" class="form-control form-control-sm cart-quantity-input"
+                                       data-menu-id="${item.id}" value="${item.quantity}" min="1" style="width: 70px;">
+                            </td>
+                            <td>Rp${item.price.toLocaleString('id-ID')}</td>
+                            <td>Rp${(item.price * item.quantity).toLocaleString('id-ID')}</td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm remove-from-cart-btn" data-menu-id="${item.id}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    cartItemsBody.insertAdjacentHTML('beforeend', row);
+                    currentGrandTotal += (item.price * item.quantity);
+                }
+            }
 
-            if (quantity > 0) {
-                const subtotal = menuPrice * quantity;
-                selectedMenus.push({
-                    id: menuId,
-                    name: menuName,
-                    price: menuPrice,
-                    quantity: quantity,
-                    subtotal: subtotal
+            cartGrandTotal.textContent = `Rp${currentGrandTotal.toLocaleString('id-ID')}`;
+
+            if (hasItems) {
+                emptyCartMessage.style.display = 'none';
+            } else {
+                emptyCartMessage.style.display = 'table-row'; // Display as table-row for correct layout
+            }
+
+            // Re-attach event listeners for dynamically added elements
+            attachCartEventListeners();
+        }
+
+        // Fungsi untuk melampirkan event listener ke tombol hapus dan input kuantitas di keranjang
+        function attachCartEventListeners() {
+            document.querySelectorAll('.remove-from-cart-btn').forEach(button => {
+                button.onclick = function() {
+                    const menuId = this.dataset.menuId;
+                    delete cart[menuId]; // Hapus item dari objek keranjang
+                    renderCart(); // Perbarui tampilan
+                };
+            });
+
+            document.querySelectorAll('.cart-quantity-input').forEach(input => {
+                input.onchange = function() {
+                    const menuId = this.dataset.menuId;
+                    const newQuantity = parseInt(this.value);
+                    if (newQuantity > 0) {
+                        cart[menuId].quantity = newQuantity;
+                        cart[menuId].subtotal = cart[menuId].price * newQuantity;
+                    } else {
+                        delete cart[menuId]; // Hapus jika kuantitas 0 atau kurang
+                    }
+                    renderCart(); // Perbarui tampilan
+                };
+            });
+        }
+
+        // Event listener untuk tombol "Tambah" pada setiap item menu
+        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const menuItemDiv = this.closest('.menu-item');
+                const menuId = menuItemDiv.dataset.menuId;
+                const menuName = menuItemDiv.dataset.menuName;
+                const menuPrice = parseFloat(menuItemDiv.dataset.menuPrice);
+                const quantityInput = menuItemDiv.querySelector('.quantity-input-item');
+                let quantity = parseInt(quantityInput.value);
+
+                if (isNaN(quantity) || quantity <= 0) {
+                    quantity = 1; // Default ke 1 jika input tidak valid
+                    quantityInput.value = 1;
+                }
+
+                if (cart[menuId]) {
+                    // Jika item sudah ada di keranjang, tambahkan kuantitasnya
+                    cart[menuId].quantity += quantity;
+                    cart[menuId].subtotal = cart[menuId].price * cart[menuId].quantity;
+                } else {
+                    // Jika item belum ada, tambahkan ke keranjang
+                    cart[menuId] = {
+                        id: menuId,
+                        name: menuName,
+                        price: menuPrice,
+                        quantity: quantity,
+                        subtotal: menuPrice * quantity
+                    };
+                }
+                renderCart(); // Perbarui tampilan keranjang
+            });
+        });
+
+        // Event listener untuk pencarian dan filter
+        searchInput.addEventListener('input', filterMenus);
+        filterCategory.addEventListener('change', filterMenus);
+
+        // Event listener untuk tombol "Buat Pesanan" (preview invoice)
+        previewOrderBtn.addEventListener('click', function() {
+            const namaPemesan = document.getElementById('nama_pemesan').value;
+            const mejaNomor = document.getElementById('meja_nomor').value;
+
+            if (!namaPemesan.trim()) {
+                validationMessage.textContent = 'Nama Pemesan harus diisi.';
+                validationModal.show();
+                return;
+            }
+            if (Object.keys(cart).length === 0) {
+                validationMessage.textContent = 'Keranjang pesanan kosong. Silakan pilih menu terlebih dahulu.';
+                validationModal.show();
+                return;
+            }
+
+            // Update modal content
+            document.getElementById('invoiceNamaPemesan').textContent = namaPemesan;
+            document.getElementById('invoiceMejaNomor').textContent = mejaNomor || '-';
+            document.getElementById('invoiceDate').textContent = new Date().toLocaleDateString('id-ID');
+            document.getElementById('invoiceTime').textContent = new Date().toLocaleTimeString('id-ID');
+
+            const invoiceItemsBody = document.getElementById('invoiceItems');
+            invoiceItemsBody.innerHTML = ''; // Clear previous items
+
+            let invoiceTotalHarga = 0;
+            const menuItemsForSubmission = []; // Untuk dikirim ke server
+
+            for (const menuId in cart) {
+                const item = cart[menuId];
+                const row = `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.quantity}</td>
+                        <td>Rp${item.price.toLocaleString('id-ID')}</td>
+                        <td>Rp${item.subtotal.toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
+                invoiceItemsBody.insertAdjacentHTML('beforeend', row);
+                invoiceTotalHarga += item.subtotal;
+
+                // Siapkan data untuk pengiriman ke server
+                menuItemsForSubmission.push({
+                    id: item.id,
+                    quantity: item.quantity
                 });
-                totalHarga += subtotal;
+            }
+
+            document.getElementById('invoiceTotalHarga').textContent = invoiceTotalHarga.toLocaleString('id-ID');
+
+            // Simpan data untuk proses pengiriman form
+            window.orderDataForSubmission = {
+                nama_pemesan: namaPemesan,
+                meja_nomor: mejaNomor,
+                menu_ids: menuItemsForSubmission.map(item => item.id),
+                quantities: menuItemsForSubmission.map(item => item.quantity)
+            };
+
+            // Show the invoice modal
+            invoiceModalInstance.show();
+        });
+
+        // Event listener untuk tombol "Proses Pesanan" di modal
+        processOrderBtn.addEventListener('click', function() {
+            if (window.orderDataForSubmission) {
+                // Sembunyikan modal invoice sebelum submit form
+                invoiceModalInstance.hide();
+
+                // Buat input hidden untuk menu_ids dan quantities
+                const hiddenMenuIds = document.createElement('input');
+                hiddenMenuIds.type = 'hidden';
+                hiddenMenuIds.name = 'menu_ids';
+                hiddenMenuIds.value = JSON.stringify(window.orderDataForSubmission.menu_ids);
+                orderForm.appendChild(hiddenMenuIds);
+
+                const hiddenQuantities = document.createElement('input');
+                hiddenQuantities.type = 'hidden';
+                hiddenQuantities.name = 'quantities';
+                hiddenQuantities.value = JSON.stringify(window.orderDataForSubmission.quantities);
+                orderForm.appendChild(hiddenQuantities);
+
+                // Pastikan nama_pemesan dan meja_nomor terisi di form utama
+                document.getElementById('nama_pemesan').value = window.orderDataForSubmission.nama_pemesan;
+                document.getElementById('meja_nomor').value = window.orderDataForSubmission.meja_nomor;
+
+                orderForm.submit(); // Kirim form
+            } else {
+                validationMessage.textContent = 'Tidak ada data pesanan untuk diproses. Silakan buat pesanan terlebih dahulu.';
+                validationModal.show();
             }
         });
 
-        // Update modal content
-        document.getElementById('invoiceNamaPemesan').textContent = namaPemesan;
-        document.getElementById('invoiceMejaNomor').textContent = mejaNomor || '-';
-        document.getElementById('invoiceDate').textContent = new Date().toLocaleDateString('id-ID');
-        document.getElementById('invoiceTime').textContent = new Date().toLocaleTimeString('id-ID');
+        // Event listener untuk tombol "Cetak Invoice" di modal
+        printInvoiceBtn.addEventListener('click', function() {
+            const printContents = document.getElementById('invoiceContent').innerHTML;
 
-        const invoiceItemsBody = document.getElementById('invoiceItems');
-        invoiceItemsBody.innerHTML = ''; // Clear previous items
-
-        selectedMenus.forEach(item => {
-            const row = `
-                <tr>
-                    <td>${item.name}</td>
-                    <td>${item.quantity}</td>
-                    <td>Rp${item.price.toLocaleString('id-ID')}</td>
-                    <td>Rp${item.subtotal.toLocaleString('id-ID')}</td>
-                </tr>
-            `;
-            invoiceItemsBody.insertAdjacentHTML('beforeend', row);
+            // Buat jendela baru untuk pencetakan
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write('<html><head><title>Invoice</title>');
+            // Sertakan CSS yang relevan untuk pencetakan
+            printWindow.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">');
+            printWindow.document.write('<style>');
+            printWindow.document.write(`
+                body { font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
+                .invoice-container {
+                    font-family: 'Inter', sans-serif;
+                    padding: 20px;
+                    border: 1px solid #eee;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                    max-width: 800px;
+                    margin: auto;
+                    background: #fff;
+                }
+                .invoice-header { text-align: center; margin-bottom: 30px; }
+                .invoice-header h2 { color: #333; font-weight: bold; }
+                .invoice-details { display: flex; justify-content: space-between; margin-bottom: 20px; }
+                .invoice-details div { flex: 1; }
+                .invoice-details p { margin: 0; }
+                .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                .invoice-table th, .invoice-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                .invoice-table th { background-color: #f2f2f2; }
+                .invoice-total { text-align: right; font-size: 1.2em; font-weight: bold; }
+                .invoice-footer { text-align: center; margin-top: 30px; font-size: 0.9em; color: #777; }
+                @media print {
+                    .invoice-container { border: none; box-shadow: none; }
+                }
+            `);
+            printWindow.document.write('</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(printContents); // Masukkan konten invoice
+            printWindow.document.write('</body></html>');
+            printWindow.document.close(); // Penting untuk menutup dokumen
+            printWindow.focus(); // Fokus ke jendela baru
+            printWindow.print(); // Panggil fungsi cetak
+            // printWindow.close(); // Opsional: tutup jendela setelah cetak (beberapa browser mungkin tidak mengizinkan ini secara otomatis)
         });
 
-        document.getElementById('invoiceTotalHarga').textContent = totalHarga.toLocaleString('id-ID');
-
-        // Store data in a temporary variable for submission
-        window.orderData = {
-            nama_pemesan: namaPemesan,
-            meja_nomor: mejaNomor,
-            menu_items: selectedMenus,
-            total_harga: totalHarga
-        };
-    });
-
-    document.getElementById('processOrderBtn').addEventListener('click', function() {
-        const form = document.getElementById('orderForm');
-        const hiddenMenuIds = document.createElement('input');
-        hiddenMenuIds.type = 'hidden';
-        hiddenMenuIds.name = 'menu_ids';
-        hiddenMenuIds.value = JSON.stringify(window.orderData.menu_items.map(item => item.id));
-        form.appendChild(hiddenMenuIds);
-
-        const hiddenQuantities = document.createElement('input');
-        hiddenQuantities.type = 'hidden';
-        hiddenQuantities.name = 'quantities';
-        hiddenQuantities.value = JSON.stringify(window.orderData.menu_items.map(item => item.quantity));
-        form.appendChild(hiddenQuantities);
-
-        // Set nama_pemesan and meja_nomor from window.orderData
-        document.getElementById('nama_pemesan').value = window.orderData.nama_pemesan;
-        document.getElementById('meja_nomor').value = window.orderData.meja_nomor;
-
-        form.submit(); // Submit the form
-    });
-
-    document.getElementById('printInvoiceBtn').addEventListener('click', function() {
-        const printContents = document.getElementById('invoiceContent').innerHTML;
-        const originalContents = document.body.innerHTML;
-
-        document.body.innerHTML = printContents;
-        window.print();
-        document.body.innerHTML = originalContents;
-        location.reload(); // Reload to restore original page content and functionality
+        // Render keranjang saat halaman dimuat (jika ada data yang tersimpan dari refresh)
+        renderCart();
     });
 </script>
 @endsection
-
