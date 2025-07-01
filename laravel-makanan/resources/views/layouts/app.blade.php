@@ -297,11 +297,11 @@
             border-color: #48569a;
         }
         .btn-success {
-             background-color: #66BB6A; /* Green for success/save */
-             border-color: #66BB6A;
+            background-color: #66BB6A; /* Green for success/save */
+            border-color: #66BB6A;
         }
         .btn-success:hover {
-             background-color: #5cb860;
+            background-color: #5cb860;
         }
         .btn-outline-primary {
             color: var(--primary-color);
@@ -517,23 +517,29 @@
 
         <div class="sidebar-menu">
             <div class="menu-category">MENU</div>
+            {{-- Dashboard --}}
             <a href="/" class="list-group-item @if(Request::is('/')) active @endif">
                 <i class="bi bi-house-door-fill"></i> Dashboard
             </a>
-            <a href="#" class="list-group-item">
-                <i class="bi bi-graph-up"></i> Analytics
+            {{-- Menu Makanan --}}
+            <a href="/menu" class="list-group-item @if(Request::is('menu*')) active @endif">
+                <i class="bi bi-egg-fried"></i> Menu
             </a>
-            <a href="#" class="list-group-item">
-                <i class="bi bi-list-task"></i> Task List
+            {{-- Kategori --}}
+            <a href="/kategori" class="list-group-item @if(Request::is('kategori*')) active @endif">
+                <i class="bi bi-bookmark-fill"></i> Kategori
             </a>
+            {{-- Tracking (Tidak berubah) --}}
             <a href="#" class="list-group-item">
                 <i class="bi bi-compass"></i> Tracking
             </a>
 
             <div class="menu-category">Setting</div>
+            {{-- Setting (Tidak berubah) --}}
             <a href="#" class="list-group-item">
                 <i class="bi bi-gear-fill"></i> Setting
             </a>
+            {{-- Logout (Tidak berubah) --}}
             <a href="#" class="list-group-item">
                 <i class="bi bi-box-arrow-right"></i> Logout
             </a>
@@ -562,7 +568,7 @@
 
         @yield('content')
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdewlivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const sidebar = document.getElementById('sidebar');
