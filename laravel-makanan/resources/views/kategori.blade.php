@@ -4,9 +4,9 @@
 
 @section('content')
 <div class="row">
-    <div class="col-lg-8">
-        {{-- Form Tambah / Edit Kategori --}}
-        <div class="card mb-4 p-4">
+    {{-- Kolom Kiri: Form Tambah / Edit Kategori (30%) --}}
+    <div class="col-lg-4 mb-4">
+        <div class="card p-4 h-100"> {{-- h-100 agar tinggi card sama --}}
             <h2 class="h4 card-header">Tambah / Edit Kategori Makanan</h2>
             <div class="card-body">
                 <form action="{{ isset($kategori) ? '/kategori/update/' . $kategori->id : '/kategori' }}" method="POST">
@@ -15,15 +15,17 @@
                         <label for="namaKategori" class="form-label">Nama Kategori</label>
                         <input type="text" class="form-control" id="namaKategori" name="nama" placeholder="Nama kategori" value="{{ isset($kategori) ? $kategori->nama : '' }}" required>
                     </div>
-                    <button type="submit" class="btn btn-success mt-3">
+                    <button type="submit" class="btn btn-success mt-3 w-100">
                         {{ isset($kategori) ? 'Update' : 'Simpan' }}
                     </button>
                 </form>
             </div>
         </div>
+    </div>
 
-        {{-- Daftar Kategori --}}
-        <div class="card p-4">
+    {{-- Kolom Kanan: Daftar Kategori (70%) --}}
+    <div class="col-lg-8 mb-4">
+        <div class="card p-4 h-100"> {{-- h-100 agar tinggi card sama --}}
             <h3 class="h4 card-header">Daftar Kategori</h3>
             <div class="card-body">
                 <div class="list-group">
@@ -40,6 +42,7 @@
                             </div>
                         </div>
 
+                        <!-- Modal Edit -->
                         <div class="modal fade" id="editKategoriModal{{ $kategori->id }}" tabindex="-1" aria-labelledby="editKategoriModalLabel{{ $kategori->id }}" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
@@ -64,6 +67,7 @@
                             </div>
                         </div>
 
+                        <!-- Modal Delete -->
                         <div class="modal fade" id="deleteKategoriModal{{ $kategori->id }}" tabindex="-1" aria-labelledby="deleteKategoriModalLabel{{ $kategori->id }}" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
@@ -93,6 +97,5 @@
             </div>
         </div>
     </div>
-    {{-- You can add a right sidebar for other content in kategori page too if needed --}}
 </div>
 @endsection

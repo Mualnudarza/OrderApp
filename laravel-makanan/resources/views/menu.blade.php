@@ -1,93 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Master Data')
+@section('title', 'Manajemen Menu Makanan')
 
 @section('content')
 <div class="row">
-    {{-- Master Grid Section --}}
+    {{-- Kolom Kiri: Filter dan Tampil Data (70%) --}}
     <div class="col-lg-8 mb-4">
-        <div class="card p-4"> {{-- Using p-4 for padding inside the card --}}
-            <h2 class="h4 card-header">Master Data Overview</h2>
-
-            <div class="master-grid mt-4">
-                {{-- Example Master Items based on your initial image --}}
-                <a href="#" class="master-item">
-                    <i class="bi bi-person-fill"></i>
-                    <span>User</span>
-                </a>
-                <a href="#" class="master-item">
-                    <i class="bi bi-building"></i>
-                    <span>PT</span>
-                </a>
-                <a href="#" class="master-item">
-                    <i class="bi bi-gas-can-fill"></i>
-                    <span>Tabung</span>
-                </a>
-                <a href="#" class="master-item">
-                    <i class="bi bi-truck"></i>
-                    <span>Tabung PT</span>
-                </a>
-                <a href="#" class="master-item">
-                    <i class="bi bi-credit-card-fill"></i>
-                    <span>Nopol</span>
-                </a>
-                <a href="#" class="master-item">
-                    <i class="bi bi-fuel-pump-fill"></i>
-                    <span>SPBE</span>
-                </a>
-                <a href="#" class="master-item">
-                    <i class="bi bi-shop"></i>
-                    <span>Pangkalan</span>
-                </a>
-                <a href="#" class="master-item">
-                    <i class="bi bi-box-seam-fill"></i>
-                    <span>Gudang</span>
-                </a>
-                <a href="#" class="master-item">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span>Logout</span>
-                </a>
-                {{-- You can add more master items as needed --}}
-            </div>
-        </div>
-
-        {{-- Form Tambah/Edit Menu Makanan (Adapted to new style) --}}
-        <div class="card mt-4 p-4">
-            <h2 class="h4 card-header">Tambah / Edit Menu Makanan</h2>
-            <div class="card-body">
-                <form action="{{ isset($menu) ? '/menu/update/' . $menu->id : '/menu' }}" method="POST">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="nama" class="form-label">Nama Makanan</label>
-                        <input type="text" class="form-control" id="nama" name="nama" placeholder="Nama makanan" value="{{ isset($menu) ? $menu->nama : '' }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="harga" class="form-label">Harga</label>
-                        <input type="number" class="form-control" id="harga" name="harga" placeholder="Harga" value="{{ isset($menu) ? $menu->harga : '' }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="deskripsi" class="form-label">Deskripsi</label>
-                        <textarea class="form-control" id="deskripsi" name="deskripsi" placeholder="Deskripsi" rows="3">{{ isset($menu) ? $menu->deskripsi : '' }}</textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="kategori_id" class="form-label">Kategori</label>
-                        <select class="form-select" id="kategori_id" name="kategori_id" required>
-                            @foreach($kategoris as $kategori)
-                                <option value="{{ $kategori->id }}" {{ isset($menu) && $menu->kategori_id == $kategori->id ? 'selected' : '' }}>
-                                    {{ $kategori->nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary mt-3">
-                        {{ isset($menu) ? 'Update' : 'Simpan' }}
-                    </button>
-                </form>
-            </div>
-        </div>
-
         {{-- Filter Berdasarkan Kategori --}}
-        <div class="card mt-4 p-4">
+        <div class="card p-4 mb-4">
             <h3 class="h4 card-header">Filter Berdasarkan Kategori</h3>
             <div class="card-body">
                 <div class="d-flex flex-wrap gap-2">
@@ -101,7 +21,7 @@
         </div>
 
         {{-- Daftar Menu --}}
-        <div class="card mt-4 p-4">
+        <div class="card p-4">
             <h3 class="h4 card-header">Daftar Menu {{ isset($kategoriAktif) ? 'Kategori: ' . $kategoriAktif->nama : '' }}</h3>
             <div class="card-body">
                 <div class="list-group">
@@ -122,6 +42,7 @@
                             </div>
                         </div>
 
+                        <!-- Modal Edit -->
                         <div class="modal fade" id="editMenuModal{{ $menu->id }}" tabindex="-1" aria-labelledby="editMenuModalLabel{{ $menu->id }}" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
@@ -164,6 +85,7 @@
                             </div>
                         </div>
 
+                        <!-- Modal Delete -->
                         <div class="modal fade" id="deleteMenuModal{{ $menu->id }}" tabindex="-1" aria-labelledby="deleteMenuModalLabel{{ $menu->id }}" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
@@ -194,91 +116,41 @@
         </div>
     </div>
 
-    {{-- Right Sidebar / Calendar Example (from your design) --}}
+    {{-- Kolom Kanan: Form Tambah/Edit Menu Makanan (30%) --}}
     <div class="col-lg-4 mb-4">
-        <div class="calendar-card">
-            <div class="card-header">
-                <h5>Calendar</h5>
-                <i class="bi bi-bell"></i>
-            </div>
-            <div class="event-list">
-                <div class="event-date">Oct 20, 2021</div>
-                <div class="event-item">
-                    <div class="event-time">10:00</div>
-                    <div class="event-details">
-                        <strong>Dribbble shot</strong>
-                        <span>Meet Up</span>
+        <div class="card p-4 h-100"> {{-- h-100 agar tinggi card sama --}}
+            <h2 class="h4 card-header">Tambah / Edit Menu Makanan</h2>
+            <div class="card-body">
+                <form action="{{ isset($menu) ? '/menu/update/' . $menu->id : '/menu' }}" method="POST">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="nama" class="form-label">Nama Makanan</label>
+                        <input type="text" class="form-control" id="nama" name="nama" placeholder="Nama makanan" value="{{ isset($menu) ? $menu->nama : '' }}" required>
                     </div>
-                </div>
-                <div class="event-item">
-                    <div class="event-time">13:20</div>
-                    <div class="event-details">
-                        <strong>Design</strong>
-                        <span>Task Managment</span>
+                    <div class="mb-3">
+                        <label for="harga" class="form-label">Harga</label>
+                        <input type="number" class="form-control" id="harga" name="harga" placeholder="Harga" value="{{ isset($menu) ? $menu->harga : '' }}" required>
                     </div>
-                </div>
-
-                <div class="event-date">Oct 21, 2021</div>
-                <div class="event-item">
-                    <div class="event-time">10:00</div>
-                    <div class="event-details">
-                        <strong>UX Research</strong>
-                        <span>Sleep App</span>
+                    <div class="mb-3">
+                        <label for="deskripsi" class="form-label">Deskripsi</label>
+                        <textarea class="form-control" id="deskripsi" name="deskripsi" placeholder="Deskripsi" rows="3">{{ isset($menu) ? $menu->deskripsi : '' }}</textarea>
                     </div>
-                </div>
-                <div class="event-item">
-                    <div class="event-time">13:20</div>
-                    <div class="event-details">
-                        <strong>Design</strong>
-                        <span>Task Managment</span>
+                    <div class="mb-3">
+                        <label for="kategori_id" class="form-label">Kategori</label>
+                        <select class="form-select" id="kategori_id" name="kategori_id" required>
+                            @foreach($kategoris as $kategori)
+                                <option value="{{ $kategori->id }}" {{ isset($menu) && $menu->kategori_id == $kategori->id ? 'selected' : '' }}>
+                                    {{ $kategori->nama }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
-                </div>
-
-                <div class="event-date">Oct 22, 2021</div>
-                <div class="event-item">
-                    <div class="event-time">10:00</div>
-                    <div class="event-details">
-                        <strong>Dribbble Shot</strong>
-                        <span>Meet Up</span>
-                    </div>
-                </div>
-                <div class="event-item">
-                    <div class="event-time">11:00</div>
-                    <div class="event-details">
-                        <strong>Design</strong>
-                        <span>Mobile App</span>
-                    </div>
-                </div>
+                    <button type="submit" class="btn btn-primary mt-3 w-100">
+                        {{ isset($menu) ? 'Update' : 'Simpan' }}
+                    </button>
+                </form>
             </div>
         </div>
-
-        {{-- Example Stats Card (can be removed or repurposed) --}}
-        <div class="card mt-4 p-4">
-            <h5 class="h6 text-muted mb-3">Today's Stats</h5>
-            <div class="d-flex justify-content-around text-center">
-                <div>
-                    <h4 class="mb-1 text-primary">28 h</h4>
-                    <small class="text-muted">Tracked Time</small>
-                </div>
-                <div>
-                    <h4 class="mb-1 text-success">18</h4>
-                    <small class="text-muted">Finished Tasks</small>
-                </div>
-                <div>
-                    <h4 class="mb-1 text-info">3</h4>
-                    <small class="text-muted">New Widgets</small>
-                </div>
-            </div>
-        </div>
-
-        {{-- Another example card (e.g., Pro Plan from design) --}}
-        <div class="card mt-4 p-4 text-center">
-            <i class="bi bi-gem fs-1 text-warning mb-3"></i>
-            <h5 class="text-primary mb-2">$9.99 p/m</h5>
-            <p class="mb-3 text-muted">Pro Plan <br> More productivity with premium</p>
-            <button class="btn btn-outline-primary btn-sm">Upgrade Now</button>
-        </div>
-
     </div>
 </div>
 @endsection
