@@ -510,9 +510,10 @@
         </div>
 
         <div class="user-profile">
-            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Sarah Connor">
-            <h5>Sarah Connor</h5>
-            <p>sarahc@gmail.com</p>
+            {{-- Gambar profil default atau bisa diganti dengan avatar pengguna jika ada --}}
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="User Avatar">
+            <h5>{{ Auth::user()->name }}</h5> {{-- Nama pengguna dari database --}}
+            <p>{{ Auth::user()->email }}</p> {{-- Email pengguna dari database --}}
         </div>
 
         <div class="sidebar-menu">
@@ -568,17 +569,17 @@
     <div id="main-content">
         <header class="dashboard-header">
             <div class="greeting">
-                <h1>Hello, Sarah</h1>
-                <p>Today is Monday, 20 October 2021</p>
+                <h1>Hello, {{ Auth::user()->name }}</h1> {{-- Nama pengguna dari database --}}
+                <p>Today is {{ date('l, d F Y') }}</p> {{-- Tanggal dinamis --}}
             </div>
             <div class="header-actions">
                 <div class="search-box d-none d-md-block">
                     <i class="bi bi-search"></i>
                     <input type="text" class="form-control" placeholder="Search...">
                 </div>
-                <button class="btn btn-add-project d-none d-md-flex">
-                    <i class="bi bi-plus"></i> Add New Project
-                </button>
+                <a href="{{ route('order.index') }}" class="btn btn-add-project d-none d-md-flex"> {{-- Ubah dari button menjadi link dan tambahkan rute --}}
+                    <i class="bi bi-plus"></i> Buat Pesanan Baru {{-- Mengubah teks tombol --}}
+                </a>
                 <div class="header-icons ms-md-3">
                     <button class="icon-button"><i class="bi bi-bell"></i></button>
                     <button class="icon-button ms-2 d-md-none" id="mobileSidebarToggle"><i class="bi bi-list"></i></button>
