@@ -530,7 +530,7 @@
                 <i class="bi bi-bookmark-fill"></i> Kategori
             </a>
             {{-- Tracking (Tidak berubah) --}}
-            <a href="#" class="list-group-item">
+            <a href="/home" class="list-group-item @if(Request::is('home*')) active @endif">
                 <i class="bi bi-compass"></i> Tracking
             </a>
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\MenuController;
@@ -7,6 +8,10 @@ use App\Http\Controllers\MenuController;
 Route::get('/', function () {
     return view('dashboard');
 });
+
+
+Route::get('/home', [HomeController::class, 'index']);
+
 
 Route::get('/kategori', [KategoriController::class, 'index']);
 Route::post('/kategori', [KategoriController::class, 'store']);
