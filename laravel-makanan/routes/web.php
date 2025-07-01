@@ -37,11 +37,14 @@ Route::post('/menu/delete/{id}', [MenuController::class, 'destroy']);
 Route::get('/order', [OrderController::class, 'index'])->name('order.index'); // Halaman pemesanan menu
 Route::post('/order', [OrderController::class, 'store'])->name('order.store'); // Menyimpan pesanan baru
 
-// Rute untuk Laporan Pesanan (hanya status pending)
+// Rute untuk Laporan Pesanan Aktif (hanya status pending)
 Route::get('/laporan-pesanan', [OrderController::class, 'showOrders'])->name('laporanpesanan.list');
 
-// Rute untuk Histori Pesanan (status completed atau cancelled)
+// Rute untuk Histori Pesanan (status completed atau cancelled, dengan filter)
 Route::get('/histori-pesanan', [OrderController::class, 'showHistory'])->name('historipesanan.list');
+
+// Rute untuk mencetak rekap histori pesanan (dengan filter)
+Route::get('/histori-pesanan/rekap-print', [OrderController::class, 'printRekap'])->name('historipesanan.printRekap');
 
 // Rute untuk memperbarui status pesanan
 Route::post('/orders/update-status/{id}', [OrderController::class, 'updateStatus'])->name('order.updateStatus');

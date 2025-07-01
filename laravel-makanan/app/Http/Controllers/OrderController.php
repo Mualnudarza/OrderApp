@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use App\Models\Kategori;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon; // Import Carbon for date handling
 
 class OrderController extends Controller
 {
@@ -85,7 +86,7 @@ class OrderController extends Controller
             // Commit transaksi jika semua operasi berhasil
             DB::commit();
 
-            // Setelah pesanan berhasil disimpan, arahkan ke halaman daftar pesanan
+            // Setelah pesanan berhasil disimpan, arahkan ke halaman daftar pesanan aktif
             return redirect()->route('laporanpesanan.list')->with('success', 'Pesanan berhasil dibuat!');
 
         } catch (\Exception $e) {
@@ -96,29 +97,94 @@ class OrderController extends Controller
     }
 
     /**
-     * Menampilkan daftar pesanan yang berstatus 'pending'.
+     * Menampilkan daftar pesanan yang berstatus 'pending' (Laporan Pesanan Aktif).
      */
     public function showOrders()
     {
         // Mengambil pesanan yang statusnya 'pending'
         $orders = Order::with('orderItems.menu')
                         ->where('status', 'pending')
-                        ->orderBy('created_at', 'asc')
+                        ->orderBy('created_at', 'asc') // FIFO: data baru di bawah
                         ->get();
         return view('laporanpesanan', compact('orders'));
     }
 
     /**
-     * Menampilkan daftar pesanan yang berstatus 'completed' atau 'cancelled' (Histori Pesanan).
+     * Menampilkan daftar pesanan yang berstatus 'completed' atau 'cancelled' (Histori Pesanan) dengan filter.
      */
-    public function showHistory()
+    public function showHistory(Request $request)
     {
-        // Mengambil pesanan yang statusnya 'completed' atau 'cancelled'
-        $historyOrders = Order::with('orderItems.menu')
-                                ->whereIn('status', ['completed', 'cancelled'])
-                                ->orderBy('created_at', 'desc') // Biasanya histori diurutkan terbaru di atas
-                                ->get();
+        $query = Order::with('orderItems.menu')
+                      ->whereIn('status', ['completed', 'cancelled']);
+
+        // Filter berdasarkan bulan (updated_at karena ini histori)
+        if ($request->filled('month') && $request->month !== 'all') {
+            $query->whereMonth('updated_at', $request->month);
+        }
+
+        // Filter berdasarkan tahun (updated_at karena ini histori)
+        if ($request->filled('year') && $request->year !== 'all') {
+            $query->whereYear('updated_at', $request->year);
+        }
+
+        // Filter berdasarkan status (completed atau cancelled)
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        $historyOrders = $query->orderBy('updated_at', 'desc')->get(); // Terbaru di atas
+
         return view('historipesanan', compact('historyOrders'));
+    }
+
+    /**
+     * Mencetak rekap laporan pesanan histori (completed/cancelled) berdasarkan filter.
+     */
+    public function printRekap(Request $request)
+    {
+        $query = Order::with('orderItems.menu')
+                      ->whereIn('status', ['completed', 'cancelled']); // Hanya pesanan histori
+
+        // Filter berdasarkan bulan
+        if ($request->filled('month') && $request->month !== 'all') {
+            $query->whereMonth('updated_at', $request->month);
+        }
+
+        // Filter berdasarkan tahun
+        if ($request->filled('year') && $request->year !== 'all') {
+            $query->whereYear('updated_at', $request->year);
+        }
+
+        // Filter berdasarkan status
+        if ($request->filled('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        $filteredOrders = $query->orderBy('updated_at', 'desc')->get();
+
+        // Calculate summary data
+        $totalCompletedOrders = $filteredOrders->where('status', 'completed')->count();
+        $totalCancelledOrders = $filteredOrders->where('status', 'cancelled')->count();
+        $grandTotalRevenue = $filteredOrders->where('status', 'completed')->sum('total_harga');
+
+        // Prepare filter labels for the report header
+        $filterLabels = [];
+        if ($request->month !== 'all' && $request->filled('month')) {
+            $filterLabels[] = 'Bulan: ' . Carbon::create()->month($request->month)->translatedFormat('F');
+        }
+        if ($request->year !== 'all' && $request->filled('year')) {
+            $filterLabels[] = 'Tahun: ' . $request->year;
+        }
+        if ($request->status !== 'all' && $request->filled('status')) {
+            $filterLabels[] = 'Status: ' . ucfirst($request->status);
+        }
+        $reportTitle = 'Rekap Laporan Histori Pesanan';
+        if (!empty($filterLabels)) {
+            $reportTitle .= ' (' . implode(', ', $filterLabels) . ')';
+        }
+
+
+        return view('rekap_print', compact('filteredOrders', 'reportTitle', 'totalCompletedOrders', 'totalCancelledOrders', 'grandTotalRevenue'));
     }
 
 

@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Laporan Pesanan')
+@section('title', 'Laporan Pesanan Aktif')
 
 @section('content')
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-12">
             <div class="card p-4">
-                <h2 class="h4 card-header">Daftar Semua Pesanan</h2>
+                <h2 class="h4 card-header">Daftar Pesanan Aktif (Pending)</h2>
                 <div class="card-body">
                     @if (session('success'))
                         <div class="alert alert-success" role="alert">
@@ -32,7 +32,7 @@
                                             @endif
                                         </div>
                                         <div>
-                                            Status: <span class="badge {{ $order->status == 'completed' ? 'bg-success' : ($order->status == 'cancelled' ? 'bg-danger' : 'bg-warning text-dark') }}">{{ ucfirst($order->status) }}</span>
+                                            Status: <span class="badge bg-warning text-dark">{{ ucfirst($order->status) }}</span>
                                         </div>
                                     </div>
                                     <div class="card-body d-flex flex-column"> {{-- Menggunakan flex-column untuk konten --}}
