@@ -326,7 +326,7 @@
     <header class="app-main-header">
         <h1 class="app-title">Daftar Menu Makanan</h1>
         <div class="auth-buttons">
-            <a href="/login" class="btn-auth">Login</a>
+            <a href="/" class="btn-auth">Login</a>
             <a href="/register" class="btn-auth register">Register</a>
         </div>
     </header>
