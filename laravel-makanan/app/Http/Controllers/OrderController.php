@@ -96,15 +96,31 @@ class OrderController extends Controller
     }
 
     /**
-     * Menampilkan daftar semua pesanan.
+     * Menampilkan daftar pesanan yang berstatus 'pending'.
      */
     public function showOrders()
     {
-        // Mengambil semua pesanan beserta item pesanan dan detail menu terkait
-        // Mengubah urutan dari 'desc' menjadi 'asc' agar data terbaru berada di bawah (FIFO)
-        $orders = Order::with('orderItems.menu')->orderBy('created_at', 'asc')->get();
+        // Mengambil pesanan yang statusnya 'pending'
+        $orders = Order::with('orderItems.menu')
+                        ->where('status', 'pending')
+                        ->orderBy('created_at', 'asc')
+                        ->get();
         return view('laporanpesanan', compact('orders'));
     }
+
+    /**
+     * Menampilkan daftar pesanan yang berstatus 'completed' atau 'cancelled' (Histori Pesanan).
+     */
+    public function showHistory()
+    {
+        // Mengambil pesanan yang statusnya 'completed' atau 'cancelled'
+        $historyOrders = Order::with('orderItems.menu')
+                                ->whereIn('status', ['completed', 'cancelled'])
+                                ->orderBy('created_at', 'desc') // Biasanya histori diurutkan terbaru di atas
+                                ->get();
+        return view('historipesanan', compact('historyOrders'));
+    }
+
 
     /**
      * Memperbarui status pesanan.
@@ -120,7 +136,13 @@ class OrderController extends Controller
         $order->status = $request->status;
         $order->save();
 
-        return redirect()->back()->with('success', 'Status pesanan berhasil diperbarui!');
+        // Arahkan ke halaman yang berbeda tergantung status baru
+        if ($order->status == 'pending') {
+            return redirect()->route('laporanpesanan.list')->with('success', 'Status pesanan berhasil diperbarui!');
+        } else {
+            // Jika status menjadi 'completed' atau 'cancelled', arahkan ke histori pesanan
+            return redirect()->route('historipesanan.list')->with('success', 'Status pesanan berhasil diperbarui dan dipindahkan ke histori!');
+        }
     }
 }
 

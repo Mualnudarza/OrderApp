@@ -4,7 +4,7 @@ use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\MenuController;
-use App\Http\Controllers\OrderController; // Import OrderController
+use App\Http\Controllers\OrderController;
 
 Route::get('/', function () {
     return view('dashboard');
@@ -37,7 +37,12 @@ Route::post('/menu/delete/{id}', [MenuController::class, 'destroy']);
 Route::get('/order', [OrderController::class, 'index'])->name('order.index'); // Halaman pemesanan menu
 Route::post('/order', [OrderController::class, 'store'])->name('order.store'); // Menyimpan pesanan baru
 
-// Mengubah rute untuk daftar pesanan menjadi '/laporan-pesanan' dan nama rute menjadi 'laporanpesanan.list'
-Route::get('/laporan-pesanan', [OrderController::class, 'showOrders'])->name('laporanpesanan.list'); // Menampilkan daftar semua pesanan
-Route::post('/orders/update-status/{id}', [OrderController::class, 'updateStatus'])->name('order.updateStatus'); // Memperbarui status pesanan
+// Rute untuk Laporan Pesanan (hanya status pending)
+Route::get('/laporan-pesanan', [OrderController::class, 'showOrders'])->name('laporanpesanan.list');
+
+// Rute untuk Histori Pesanan (status completed atau cancelled)
+Route::get('/histori-pesanan', [OrderController::class, 'showHistory'])->name('historipesanan.list');
+
+// Rute untuk memperbarui status pesanan
+Route::post('/orders/update-status/{id}', [OrderController::class, 'updateStatus'])->name('order.updateStatus');
 

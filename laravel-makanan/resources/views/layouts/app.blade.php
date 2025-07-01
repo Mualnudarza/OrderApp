@@ -538,7 +538,7 @@
             <a href="/order" class="list-group-item @if(Request::is('order*')) active @endif">
                 <i class="bi bi-bag-check"></i> Pemesanan
             </a>
-            <a href="/history-pesanan" class="list-group-item @if(Request::is('history-pesanan*')) active @endif">
+            <a href="/histori-pesanan" class="list-group-item @if(Request::is('histori-pesanan*')) active @endif">
                 <i class="bi bi-clock-history"></i> History Pesanan
             </a>
             <a href="/laporan-pesanan" class="list-group-item @if(Request::is('laporan-pesanan*')) active @endif">
