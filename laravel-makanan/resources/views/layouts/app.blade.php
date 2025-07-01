@@ -531,7 +531,7 @@
             </a>
             {{-- Tracking (Tidak berubah) --}}
             <a href="/home" class="list-group-item @if(Request::is('home*')) active @endif">
-                <i class="bi bi-compass"></i> Tracking
+                <i class="bi bi-compass"></i> Daftar Menu
             </a>
 
             {{-- Menambahkan Menu Pemesanan, History Pesanan, dan Laporan Pemesanan --}}

@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Daftar Menu Makanan</title>
+    <title>🍜 "Opo Enak? - Makanan Khas Malang"</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Pastikan link Bootstrap CSS sudah benar dan termuat -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
         /* Variabel CSS dengan tema Biru Navy Dominan dan Gradasi */
         :root {
@@ -20,31 +22,98 @@
 
             /* Warna teks untuk elemen yang berada langsung di atas background gelap (misal: jika ada teks di luar container) */
             --text-on-dark-bg: #E0EBF5; /* Sangat terang, untuk kontras dengan background gelap */
+
+            /* Button specific variables */
+            --button-primary: #5C6BC0; /* Warna tombol utama (biru keunguan) */
+            --button-primary-hover: #4a5a9e; /* Hover tombol utama */
+            --button-secondary: #6c757d; /* Warna tombol sekunder */
+            --button-secondary-hover: #5a6268; /* Hover tombol sekunder */
         }
 
-        body {
+        html, body {
+            height: 100%; /* Memastikan html dan body mengambil tinggi penuh viewport */
             font-family: 'Poppins', sans-serif;
-            margin: 0;
-            /* Gradasi pada background body, dominan biru navy */
             background: linear-gradient(to bottom, var(--primary-bg-start), var(--primary-bg-end));
-            padding: 20px;
-            color: var(--text-dark); /* Default body text color, akan dioverride oleh elemen di dalam container */
+            background-attachment: fixed; /* Menjaga background tetap saat scroll */
+            background-size: cover; /* Memastikan background mencakup seluruh area */
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark); /* Default body text color */
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+            flex-direction: column; /* Mengatur tata letak vertikal untuk header dan konten */
             box-sizing: border-box;
         }
 
-        .container {
+        /* Header Utama Aplikasi (untuk judul dan tombol auth) */
+        .app-main-header {
+            background-color: var(--card-bg);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px var(--shadow-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Memungkinkan wrapping pada layar kecil */
+        }
+
+        .app-main-header .app-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--dominant-navy);
+            margin: 0;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-auth {
+            padding: 10px 20px;
+            background-color: var(--button-primary); /* Menggunakan variabel button-primary */
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: background-color 0.3s ease;
+            border: 1px solid var(--button-primary); /* Tambahkan border untuk konsistensi */
+        }
+
+        .btn-auth:hover {
+            background-color: var(--button-primary-hover); /* Menggunakan variabel hover */
+        }
+
+        .btn-auth.register {
+            background-color: transparent; /* Transparan untuk register */
+            color: var(--button-primary); /* Warna teks dari primary button */
+            border: 1px solid var(--button-primary);
+        }
+
+        .btn-auth.register:hover {
+            background-color: var(--button-primary); /* Background jadi primary saat hover */
+            color: #fff;
+        }
+
+
+        /* Container utama untuk konten (selain header aplikasi) */
+        .main-content-container {
+            flex-grow: 1; /* Memungkinkan konten mengambil sisa ruang yang tersedia */
+            padding: 20px; /* Padding dari body yang asli */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Konten dimulai dari atas */
+            box-sizing: border-box;
+        }
+
+        .container { /* Ini adalah container untuk konten di dalam main-content-container */
             width: 100%;
             max-width: 1100px;
-            /* Gradasi pada background container, tetap terang */
             background: linear-gradient(to bottom, var(--card-bg), #FDFDFE);
             border-radius: 15px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             padding: 30px;
+            box-sizing: border-box; /* Penting untuk padding */
         }
 
         .header-section {
@@ -56,7 +125,7 @@
 
         .header-section h1 {
             font-size: 2.8em;
-            color: var(--text-dark); /* Tetap biru navy gelap untuk di atas kartu putih */
+            color: var(--text-dark);
             margin-bottom: 10px;
             font-weight: 700;
             letter-spacing: 1px;
@@ -64,14 +133,14 @@
 
         .header-section h3 {
             font-size: 1.5em;
-            color: var(--accent-color); /* Tetap aksen biru terang untuk di atas kartu putih */
+            color: var(--accent-color);
             margin-bottom: 15px;
             font-weight: 600;
         }
 
         .header-section p {
             font-size: 1.1em;
-            color: var(--text-light); /* Tetap abu-abu kebiruan gelap untuk di atas kartu putih */
+            color: var(--text-light);
             max-width: 600px;
             margin: 0 auto;
         }
@@ -98,11 +167,11 @@
             max-width: 280px;
             box-sizing: border-box;
             background-color: var(--card-bg);
-            color: var(--text-dark); /* Teks input navy */
+            color: var(--text-dark);
         }
 
         .controls input[type="text"]::placeholder {
-            color: var(--text-light); /* Placeholder biru-abu-abu */
+            color: var(--text-light);
         }
 
         .controls input[type="text"]:focus,
@@ -129,7 +198,6 @@
         }
 
         .menu-item {
-            /* Gradasi pada background kartu */
             background: linear-gradient(to bottom, var(--card-bg), #FBFBFB);
             border-radius: 12px;
             padding: 20px;
@@ -193,7 +261,7 @@
 
         .empty-message {
             text-align: center;
-            grid-column: 1 / -1;
+            grid-column: 1 / -1; /* Memastikan pesan mengambil seluruh lebar grid */
             padding: 30px;
             background: var(--card-bg);
             border-radius: 10px;
@@ -203,9 +271,34 @@
         }
 
         /* Media queries */
-        @media (min-width: 500px) {
+        @media (max-width: 767px) { /* Untuk ukuran mobile */
+            .app-main-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .app-main-header .app-title {
+                margin-bottom: 1rem;
+            }
+            .auth-buttons {
+                width: 100%;
+                justify-content: stretch;
+            }
+            .btn-auth {
+                flex: 1; /* Tombol akan mengisi lebar penuh */
+            }
+            .container {
+                padding: 20px; /* Kurangi padding untuk mobile */
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .controls input[type="text"],
+            .controls select {
+                max-width: 100%; /* Gunakan lebar penuh untuk input/select */
+            }
             .menu-grid {
-                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Sesuaikan ukuran kartu untuk mobile */
             }
         }
 
@@ -218,51 +311,61 @@
                 max-width: 250px;
             }
             .menu-grid {
-                grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: repeat(3, 1fr); /* 3 kolom untuk tablet/desktop kecil */
             }
         }
 
         @media (min-width: 992px) {
             .menu-grid {
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(4, 1fr); /* 4 kolom untuk desktop besar */
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header-section">
-            <h1>🍜 "Opo Enak? - Makanan Khas Malang"</h1>
-            <h3>Kowe Makan, Kowe Bahagia!</h3>
-            <p>"Opo Enak?" adalah tempat makan online yang menyajikan makanan khas Malang langsung dari dapur rumahan ke lidah pelanggan. Semua menu dibuat dengan resep tradisional khas Malang dan rasa rumahan yang ngangenin. Cocok buat kamu yang kangen kampung halaman, pengen jajan enak, murah, dan cepet.</p>
+    <header class="app-main-header">
+        <h1 class="app-title">Daftar Menu Makanan</h1>
+        <div class="auth-buttons">
+            <a href="/login" class="btn-auth">Login</a>
+            <a href="/register" class="btn-auth register">Register</a>
         </div>
+    </header>
 
-        <div class="controls">
-            <input type="text" id="searchMenu" onkeyup="filterMenu()" placeholder="Cari menu...">
-            <select id="filterCategory" onchange="filterMenu()">
-                <option value="all">Semua Kategori</option>
-                {{-- Pastikan variabel $kategoris dikirim dari controller --}}
-                @foreach($kategoris as $category)
-                    <option value="{{ $category->nama }}">{{ $category->nama }}</option>
-                @endforeach
-            </select>
-        </div>
+    <div class="main-content-container">
+        <div class="container">
+            <div class="header-section">
+                <h1>🍜 "Opo Enak? - Makanan Khas Malang"</h1>
+                <h3>Kowe Makan, Kowe Bahagia!</h3>
+                <p>"Opo Enak?" adalah tempat makan online yang menyajikan makanan khas Malang langsung dari dapur rumahan ke lidah pelanggan. Semua menu dibuat dengan resep tradisional khas Malang dan rasa rumahan yang ngangenin. Cocok buat kamu yang kangen kampung halaman, pengen jajan enak, murah, dan cepet.</p>
+            </div>
 
-        <div class="menu-grid" id="menuList">
-            @forelse($menus as $menu)
-                <div class="menu-item" data-category="{{ $menu->kategori->nama }}" data-name="{{ $menu->nama }}">
-                    {{-- Template untuk Gambar (Anda bisa mengganti URL gambar ini) --}}
-                    <img src="https://via.placeholder.com/150/060058/E0EBF5?text={{ urlencode($menu->nama) }}" alt="{{ $menu->nama }}" class="menu-image">
-                    <h3>{{ $menu->nama }}</h3>
-                    <p class="category">{{ $menu->kategori->nama }}</p>
-                    <p class="description">{{ $menu->deskripsi ?? 'Deskripsi belum tersedia.' }}</p>
-                    <p class="price">Rp{{ number_format($menu->harga, 0, ',', '.') }}</p>
-                </div>
-            @empty
-                <p class="empty-message" id="noMenuFound">Tidak ada menu tersedia saat ini.</p>
-            @endforelse
+            <div class="controls">
+                <input type="text" id="searchMenu" onkeyup="filterMenu()" placeholder="Cari menu...">
+                <select id="filterCategory" onchange="filterMenu()">
+                    <option value="all">Semua Kategori</option>
+                    {{-- Pastikan variabel $kategoris dikirim dari controller --}}
+                    @foreach($kategoris as $category)
+                        <option value="{{ $category->nama }}">{{ $category->nama }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="menu-grid" id="menuList">
+                @forelse($menus as $menu)
+                    <div class="menu-item" data-category="{{ $menu->kategori->nama ?? 'Tidak Berkategori' }}" data-name="{{ $menu->nama }}">
+                        {{-- Template untuk Gambar (Anda bisa mengganti URL gambar ini) --}}
+                        <img src="https://via.placeholder.com/150/060058/E0EBF5?text={{ urlencode($menu->nama) }}" alt="{{ $menu->nama }}" class="menu-image">
+                        <h3>{{ $menu->nama }}</h3>
+                        <p class="category">{{ $menu->kategori->nama ?? 'Tidak Berkategori' }}</p>
+                        <p class="description">{{ $menu->deskripsi ?? 'Deskripsi belum tersedia.' }}</p>
+                        <p class="price">Rp{{ number_format($menu->harga, 0, ',', '.') }}</p>
+                    </div>
+                @empty
+                    <p class="empty-message" id="noMenuFound">Tidak ada menu tersedia saat ini.</p>
+                @endforelse
+            </div>
+            <p class="empty-message" id="noResults" style="display: none;">Menu tidak ditemukan.</p>
         </div>
-        <p class="empty-message" id="noResults" style="display: none;">Menu tidak ditemukan.</p>
     </div>
 
     <script>
@@ -271,28 +374,28 @@
             const filterCategory = document.getElementById('filterCategory');
             const menuItems = document.querySelectorAll('.menu-item');
             const noResultsMessage = document.getElementById('noResults');
-            const noMenuFoundInitial = document.getElementById('noMenuFound');
+            const noMenuFoundInitial = document.getElementById('noMenuFound'); // Pesan awal jika tidak ada menu sama sekali
 
             const searchTerm = searchInput.value.toLowerCase();
             const selectedCategory = filterCategory.value.toLowerCase();
 
             let foundMenus = 0;
 
-            if (noMenuFoundInitial) {
+            // Sembunyikan pesan awal "Tidak ada menu tersedia" jika ada menu yang dimuat
+            if (noMenuFoundInitial && menuItems.length > 0) {
                 noMenuFoundInitial.style.display = 'none';
             }
 
             menuItems.forEach(item => {
-                const menuName = item.querySelector('h3').textContent.toLowerCase();
-                const menuNameForSearch = item.getAttribute('data-name') ? item.getAttribute('data-name').toLowerCase() : menuName;
-                const menuDescription = item.querySelector('.description').textContent.toLowerCase();
+                const menuName = item.getAttribute('data-name').toLowerCase();
+                const menuDescription = item.querySelector('.description') ? item.querySelector('.description').textContent.toLowerCase() : ''; // Handle if description is missing
                 const menuCategory = item.getAttribute('data-category').toLowerCase();
 
-                const matchesSearch = menuNameForSearch.includes(searchTerm) || menuDescription.includes(searchTerm);
+                const matchesSearch = menuName.includes(searchTerm) || menuDescription.includes(searchTerm);
                 const matchesCategory = selectedCategory === 'all' || menuCategory === selectedCategory;
 
                 if (matchesSearch && matchesCategory) {
-                    item.style.display = 'flex';
+                    item.style.display = 'flex'; // Gunakan flex untuk tata letak kolom
                     foundMenus++;
                 } else {
                     item.style.display = 'none';
