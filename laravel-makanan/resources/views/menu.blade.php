@@ -11,8 +11,11 @@
             <h3 class="h4 card-header">Filter Berdasarkan Kategori</h3>
             <div class="card-body">
                 <div class="d-flex flex-wrap gap-2">
+                    <a href="/menu" class="btn btn-outline-secondary {{ !isset($kategoriAktif) ? 'active' : '' }}">
+                        Semua Kategori
+                    </a>
                     @foreach($kategoris as $kategori)
-                        <a href="/menu/kategori/{{ $kategori->id }}" class="btn btn-outline-secondary">
+                        <a href="/menu/kategori/{{ $kategori->id }}" class="btn btn-outline-secondary {{ isset($kategoriAktif) && $kategoriAktif->id == $kategori->id ? 'active' : '' }}">
                             {{ $kategori->nama }}
                         </a>
                     @endforeach
@@ -42,7 +45,6 @@
                             </div>
                         </div>
 
-                        <!-- Modal Edit -->
                         <div class="modal fade" id="editMenuModal{{ $menu->id }}" tabindex="-1" aria-labelledby="editMenuModalLabel{{ $menu->id }}" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
@@ -85,7 +87,6 @@
                             </div>
                         </div>
 
-                        <!-- Modal Delete -->
                         <div class="modal fade" id="deleteMenuModal{{ $menu->id }}" tabindex="-1" aria-labelledby="deleteMenuModalLabel{{ $menu->id }}" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
@@ -116,37 +117,39 @@
         </div>
     </div>
 
-    {{-- Kolom Kanan: Form Tambah/Edit Menu Makanan (30%) --}}
+    {{-- Kolom Kanan: Form Tambah Menu Makanan (30%) --}}
     <div class="col-lg-4 mb-4">
         <div class="card p-4 h-100"> {{-- h-100 agar tinggi card sama --}}
-            <h2 class="h4 card-header">Tambah / Edit Menu Makanan</h2>
+            <h2 class="h4 card-header">Tambah Menu Makanan Baru</h2>
             <div class="card-body">
-                <form action="{{ isset($menu) ? '/menu/update/' . $menu->id : '/menu' }}" method="POST">
+                {{-- Form ini khusus untuk TAMBAH data baru --}}
+                <form action="/menu" method="POST"> {{-- Action selalu ke /menu untuk POST baru --}}
                     @csrf
                     <div class="mb-3">
                         <label for="nama" class="form-label">Nama Makanan</label>
-                        <input type="text" class="form-control" id="nama" name="nama" placeholder="Nama makanan" value="{{ isset($menu) ? $menu->nama : '' }}" required>
+                        <input type="text" class="form-control" id="nama" name="nama" placeholder="Nama makanan" required>
                     </div>
                     <div class="mb-3">
                         <label for="harga" class="form-label">Harga</label>
-                        <input type="number" class="form-control" id="harga" name="harga" placeholder="Harga" value="{{ isset($menu) ? $menu->harga : '' }}" required>
+                        <input type="number" class="form-control" id="harga" name="harga" placeholder="Harga" required>
                     </div>
                     <div class="mb-3">
                         <label for="deskripsi" class="form-label">Deskripsi</label>
-                        <textarea class="form-control" id="deskripsi" name="deskripsi" placeholder="Deskripsi" rows="3">{{ isset($menu) ? $menu->deskripsi : '' }}</textarea>
+                        <textarea class="form-control" id="deskripsi" name="deskripsi" placeholder="Deskripsi" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
                         <label for="kategori_id" class="form-label">Kategori</label>
                         <select class="form-select" id="kategori_id" name="kategori_id" required>
+                            <option value="" disabled selected>Pilih Kategori</option> {{-- Tambah placeholder --}}
                             @foreach($kategoris as $kategori)
-                                <option value="{{ $kategori->id }}" {{ isset($menu) && $menu->kategori_id == $kategori->id ? 'selected' : '' }}>
+                                <option value="{{ $kategori->id }}">
                                     {{ $kategori->nama }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary mt-3 w-100">
-                        {{ isset($menu) ? 'Update' : 'Simpan' }}
+                        Simpan Menu Baru
                     </button>
                 </form>
             </div>
