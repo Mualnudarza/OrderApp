@@ -548,13 +548,21 @@
 
             <div class="menu-category">Setting</div>
             {{-- Setting (Tidak berubah) --}}
-            <a href="#" class="list-group-item">
-                <i class="bi bi-gear-fill"></i> Setting
+            <a href="#" class="list-group-item" @if(Request::is('histori-pesanan*')) active @endif">
+                <i class="bi bi-person-gear"></i> Manajemen Akses
             </a>
             {{-- Logout (Tidak berubah) --}}
-            <a href="#" class="list-group-item">
-                <i class="bi bi-box-arrow-right"></i> Logout
-            </a>
+            <li class="sidebar-menu-item mt-auto" style="list-style: none; padding: 0; margin: 0;">
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+            
+                <a href="#" class="list-group-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </li>
+            
+            
         </div>
     </div>
     <div id="main-content">
