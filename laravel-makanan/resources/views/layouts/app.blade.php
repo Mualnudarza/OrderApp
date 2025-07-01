@@ -534,6 +534,18 @@
                 <i class="bi bi-compass"></i> Tracking
             </a>
 
+            {{-- Menambahkan Menu Pemesanan, History Pesanan, dan Laporan Pemesanan --}}
+            <a href="/pemesanan" class="list-group-item @if(Request::is('pemesanan*')) active @endif">
+                <i class="bi bi-bag-check"></i> Pemesanan
+            </a>
+            <a href="/history-pesanan" class="list-group-item @if(Request::is('history-pesanan*')) active @endif">
+                <i class="bi bi-clock-history"></i> History Pesanan
+            </a>
+            <a href="/laporan-pemesanan" class="list-group-item @if(Request::is('laporan-pemesanan*')) active @endif">
+                <i class="bi bi-file-earmark-text"></i> Laporan Pemesanan
+            </a>
+            {{-- Akhir Penambahan Menu --}}
+
             <div class="menu-category">Setting</div>
             {{-- Setting (Tidak berubah) --}}
             <a href="#" class="list-group-item">
