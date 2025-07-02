@@ -107,26 +107,58 @@
             color: var(--button-primary-hover);
             text-decoration: underline;
         }
+
+        /* Styling untuk Tab Error */
+        .error-tab {
+            background-color: #f8d7da; /* Warna latar belakang merah muda untuk error */
+            color: #721c24; /* Warna teks merah gelap */
+            border: 1px solid #f5c6cb;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .error-tab .bi {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+        }
     </style>
 </head>
 <body>
     <div class="auth-container">
         <h2>Login</h2>
-        <form method="POST" action="/login"> {{-- PASTIKAN INI BENAR: method="POST" dan action="/login" --}}
-            @csrf {{-- PASTIKAN INI ADA UNTUK KEAMANAN CSRF --}}
+
+        {{-- Tab Error untuk validasi --}}
+        @if ($errors->any())
+            <div class="error-tab" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <div>
+                    @foreach ($errors->all() as $error)
+                        <div>{{ $error }}</div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        <form method="POST" action="/login">
+            @csrf
             <div class="mb-3 text-start">
                 <label for="email" class="form-label">Email Address</label>
-                <input type="email" class="form-control" id="email" name="email" required autocomplete="email" autofocus>
-                {{-- @error('email')
-                    <div class="text-danger mt-2">{{ $message }}</div>
-                @enderror --}}
+                <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+                @error('email')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <div class="mb-4 text-start">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
-                {{-- @error('password')
-                    <div class="text-danger mt-2">{{ $message }}</div>
-                @enderror --}}
+                <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required autocomplete="current-password">
+                @error('password')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
             <div class="d-grid mb-3">
                 <button type="submit" class="btn btn-primary">Login</button>

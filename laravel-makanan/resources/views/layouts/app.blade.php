@@ -501,6 +501,66 @@
                 margin-bottom: 1.5rem;
             }
         }
+        /* Styling untuk Modal Akses Ditolak */
+.access-denied-modal .modal-content {
+    border-radius: 1rem;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    background-color: var(--card-background);
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.access-denied-modal .modal-header {
+    border-bottom: none;
+    justify-content: center;
+    padding-bottom: 0;
+}
+
+.access-denied-modal .modal-body {
+    padding: 1.5rem 1rem 1rem 1rem;
+    color: var(--text-color-dark);
+}
+
+.access-denied-modal .modal-body .bi {
+    font-size: 4rem; /* Ukuran ikon lebih besar */
+    color: #dc3545; /* Warna merah untuk ikon peringatan */
+    margin-bottom: 1rem;
+    display: block; /* Agar ikon berada di tengah */
+}
+
+.access-denied-modal .modal-body h5 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color); /* Menggunakan primary-color untuk judul */
+    margin-bottom: 0.5rem;
+}
+
+.access-denied-modal .modal-body p {
+    font-size: 1rem;
+    color: var(--text-color-light);
+    margin-bottom: 1.5rem;
+}
+
+.access-denied-modal .modal-footer {
+    border-top: none;
+    justify-content: center;
+    padding-top: 0;
+}
+
+.access-denied-modal .btn-close-modal {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.access-denied-modal .btn-close-modal:hover {
+    background-color: #4a5a9e; /* Darker primary on hover */
+}
     </style>
 </head>
 <body>
@@ -609,5 +669,82 @@
             });
         });
     </script>
+     {{-- Modal Akses Ditolak --}}
+     <div class="modal fade access-denied-modal" id="accessDeniedModal" tabindex="-1" aria-labelledby="accessDeniedModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <i class="bi bi-exclamation-circle-fill"></i> {{-- Ikon peringatan --}}
+                    <h5>Akses Ditolak!</h5>
+                    <p>Maaf, Anda tidak memiliki izin untuk mengakses halaman ini.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-close-modal" data-bs-dismiss="modal">Oke, Mengerti</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebar = document.getElementById('sidebar');
+            const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+            // Tambahkan ini jika Anda memiliki elemen contentArea yang ingin di-toggle
+            const mainContent = document.getElementById('main-content'); // Sesuaikan ID ini jika berbeda
+
+            if (mobileSidebarToggle) {
+                mobileSidebarToggle.addEventListener('click', function () {
+                    sidebar.classList.toggle('toggled');
+                    // Tambahkan ini jika Anda memiliki elemen contentArea yang ingin di-toggle
+                    if (mainContent) {
+                        mainContent.classList.toggle('toggled');
+                    }
+                });
+            }
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                // Pastikan sidebar ada sebelum mencoba mengakses propertinya
+                if (sidebar && sidebar.classList.contains('toggled') && !sidebar.contains(event.target) && !mobileSidebarToggle.contains(event.target)) {
+                    sidebar.classList.remove('toggled');
+                    // Tambahkan ini jika Anda memiliki elemen contentArea yang ingin di-toggle
+                    if (mainContent) {
+                        mainContent.classList.remove('toggled');
+                    }
+                }
+            });
+
+            // Logika untuk menampilkan Modal Akses Ditolak
+            @if (session('showAccessDeniedModal'))
+                var accessDeniedModal = new bootstrap.Modal(document.getElementById('accessDeniedModal'));
+                accessDeniedModal.show();
+            @endif
+
+            // Logika untuk menandai menu sidebar yang aktif
+            const currentPath = window.location.pathname;
+            const sidebarLinks = document.querySelectorAll('.sidebar-menu a'); // Target semua <a> di dalam .sidebar-menu
+
+            sidebarLinks.forEach(link => {
+                // Normalisasi path saat ini (hapus trailing slash kecuali untuk root '/')
+                const normalizedCurrentPath = (currentPath.length > 1 && currentPath.endsWith('/'))
+                    ? currentPath.slice(0, -1)
+                    : currentPath;
+
+                // Dapatkan href dari link dan normalisasi juga
+                const linkHref = link.getAttribute('href');
+                const normalizedLinkHref = (linkHref && linkHref.length > 1 && linkHref.endsWith('/'))
+                    ? linkHref.slice(0, -1)
+                    : linkHref;
+
+                // Logika penandaan aktif
+                if (normalizedCurrentPath === normalizedLinkHref) {
+                    link.classList.add('active');
+                } else if (normalizedCurrentPath.startsWith(normalizedLinkHref + '/') && normalizedLinkHref !== '/') {
+                    // Untuk rute seperti /menu/edit/1, aktifkan /menu
+                    link.classList.add('active');
+                }
+            });
+        });
 </body>
 </html>
