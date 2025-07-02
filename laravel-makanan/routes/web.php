@@ -7,7 +7,7 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\ManajemenAksesController; // Import ManajemenAksesController
+use App\Http\Controllers\ManajemenAksesController;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -30,19 +30,18 @@ Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->na
 Route::post('/register', [RegisterController::class, 'register']);
 
 // Rute yang dapat diakses TANPA autentikasi
-Route::get('/', [HomeController::class, 'index'])->name('home'); // Pindahkan rute root ke sini
+Route::get('/', [HomeController::class, 'index'])->name('home'); // Daftar menu publik
 Route::get('/home', [HomeController::class, 'index'])->name('home'); // Tetap pertahankan /home juga
 
 // Rute yang memerlukan autentikasi
 Route::middleware(['auth'])->group(function () {
     // Rute Dashboard (Admin & Master bisa akses)
-    // Sekarang dashboard hanya bisa diakses setelah login
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
     // Rute untuk Kasir (Pemesanan & Laporan Pesanan)
-    Route::middleware(['role:admin,kasir'])->group(function () {
+    Route::middleware(['role:admin,kasir,master'])->group(function () { // Master juga bisa akses
         Route::get('/order', [OrderController::class, 'index'])->name('order.index');
         Route::post('/order', [OrderController::class, 'store'])->name('order.store');
         Route::get('/laporan-pesanan', [OrderController::class, 'showOrders'])->name('laporanpesanan.list');
@@ -50,7 +49,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Rute untuk Admin (Kategori, Menu, Histori Pesanan, Laporan Rekap)
-    Route::middleware(['role:admin'])->group(function () {
+    Route::middleware(['role:admin,master'])->group(function () { // Master juga bisa akses
         Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori');
         Route::post('/kategori', [KategoriController::class, 'store']);
         Route::get('/kategori/edit/{id}', [KategoriController::class, 'edit']);
@@ -71,6 +70,8 @@ Route::middleware(['auth'])->group(function () {
     // Rute untuk Master (Manajemen Akses)
     Route::middleware(['role:master'])->group(function () {
         Route::get('/manajemen-akses', [ManajemenAksesController::class, 'index'])->name('manajemen.akses');
+        Route::post('/manajemen-akses/store', [ManajemenAksesController::class, 'store'])->name('manajemen.akses.store'); // Rute baru untuk tambah user
         Route::post('/manajemen-akses/update-role/{user}', [ManajemenAksesController::class, 'updateRole'])->name('manajemen.akses.update');
+        Route::delete('/manajemen-akses/delete/{user}', [ManajemenAksesController::class, 'destroy'])->name('manajemen.akses.destroy'); // Rute baru untuk hapus user
     });
 });

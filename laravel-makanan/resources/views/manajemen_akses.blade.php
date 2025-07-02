@@ -7,7 +7,12 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="card p-4">
-                <h2 class="h4 card-header">Manajemen Akses Pengguna</h2>
+                <h2 class="h4 card-header d-flex justify-content-between align-items-center">
+                    Manajemen Akses Pengguna
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="bi bi-person-plus-fill me-1"></i> Tambah Pengguna Baru
+                    </button>
+                </h2>
                 <div class="card-body">
                     @if (session('success'))
                         <div class="alert alert-success" role="alert">
@@ -42,6 +47,7 @@
                                             <span class="badge
                                                 @if($user->role == 'admin') bg-primary
                                                 @elseif($user->role == 'kasir') bg-info text-dark
+                                                @elseif($user->role == 'master') bg-success
                                                 @else bg-secondary
                                                 @endif">
                                                 {{ ucfirst($user->role) }}
@@ -53,14 +59,41 @@
                                                 <select name="role" class="form-select form-select-sm">
                                                     <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
                                                     <option value="kasir" {{ $user->role == 'kasir' ? 'selected' : '' }}>Kasir</option>
-                                                    {{-- Peran 'master' tidak ditampilkan untuk diubah melalui UI ini --}}
+                                                    <option value="master" {{ $user->role == 'master' ? 'selected' : '' }}>Master</option>
                                                 </select>
                                         </td>
                                         <td>
-                                                <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                                                <button type="submit" class="btn btn-sm btn-primary me-2">Update</button>
                                             </form>
+                                            {{-- Tombol Hapus --}}
+                                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ $user->id }}">
+                                                Hapus
+                                            </button>
                                         </td>
                                     </tr>
+
+                                    {{-- Modal Konfirmasi Hapus User --}}
+                                    <div class="modal fade" id="deleteUserModal{{ $user->id }}" tabindex="-1" aria-labelledby="deleteUserModalLabel{{ $user->id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteUserModalLabel{{ $user->id }}">Konfirmasi Hapus Pengguna</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Apakah Anda yakin ingin menghapus pengguna <strong>{{ $user->name }} ({{ $user->email }})</strong>?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                    <form action="{{ route('manajemen.akses.destroy', $user->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('DELETE') {{-- Penting untuk metode DELETE --}}
+                                                        <button type="submit" class="btn btn-danger">Hapus</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 @empty
                                     <tr>
                                         <td colspan="6" class="text-center py-4">
@@ -75,6 +108,51 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+{{-- Modal Tambah Pengguna Baru --}}
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUserModalLabel">Tambah Pengguna Baru</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('manajemen.akses.store') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nama</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
+                        <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Peran</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="kasir">Kasir</option>
+                            <option value="admin">Admin</option>
+                            <option value="master">Master</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Pengguna</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
