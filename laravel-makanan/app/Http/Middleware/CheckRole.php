@@ -25,13 +25,17 @@ class CheckRole
 
         $user = Auth::user();
 
-        // Periksa apakah pengguna memiliki salah satu peran yang diizinkan
+        // LOGIKA BARU: Jika pengguna adalah 'master', izinkan akses ke mana pun
+        if ($user->isMaster()) { // Memanggil helper method isMaster() dari model User
+            return $next($request);
+        }
+
+        // Logika lama: Periksa apakah pengguna memiliki salah satu peran yang diizinkan
         if (in_array($user->role, $roles)) {
             return $next($request);
         }
 
         // Jika tidak memiliki peran yang diizinkan, arahkan ke halaman yang tidak diizinkan atau dashboard
-        // Anda bisa membuat halaman 'unauthorized.blade.php' atau redirect ke dashboard
         return redirect('/dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
     }
 }

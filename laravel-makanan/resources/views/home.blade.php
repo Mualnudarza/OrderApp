@@ -4,7 +4,7 @@
     <title>🍜 "Opo Enak? - Makanan Khas Malang"</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Pastikan link Bootstrap CSS sudah benar dan termuat -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
         /* Variabel CSS dengan tema Biru Navy Dominan dan Gradasi */
         :root {
@@ -92,6 +92,16 @@
         .btn-auth.register:hover {
             background-color: var(--button-primary); /* Background jadi primary saat hover */
             color: #fff;
+        }
+
+        .btn-auth.logout {
+            background-color: #dc3545; /* Red color for logout */
+            border-color: #dc3545;
+        }
+
+        .btn-auth.logout:hover {
+            background-color: #c82333;
+            border-color: #c82333;
         }
 
 
@@ -326,8 +336,19 @@
     <header class="app-main-header">
         <h1 class="app-title">Daftar Menu Makanan</h1>
         <div class="auth-buttons">
-            <a href="/" class="btn-auth">Login</a>
-            <a href="/register" class="btn-auth register">Register</a>
+            @auth
+                {{-- Jika pengguna sudah login --}}
+                <a href="/dashboard" class="btn-auth">Dashboard</a>
+                <form id="logout-form-home" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+                <a href="#" class="btn-auth logout" onclick="event.preventDefault(); document.getElementById('logout-form-home').submit();">Logout</a>
+            @endauth
+            @guest
+                {{-- Jika pengguna belum login --}}
+                <a href="{{ route('login') }}" class="btn-auth">Login</a>
+                <a href="{{ route('register') }}" class="btn-auth register">Register</a>
+            @endguest
         </div>
     </header>
 

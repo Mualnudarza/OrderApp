@@ -549,7 +549,7 @@
 
             <div class="menu-category">Setting</div>
             {{-- Setting (Tidak berubah) --}}
-            <a href="#" class="list-group-item" @if(Request::is('histori-pesanan*')) active @endif">
+            <a href="/manajemen-akses" class="list-group-item @if(Request::is('manajemen-akses*')) active @endif">
                 <i class="bi bi-person-gear"></i> Manajemen Akses
             </a>
             {{-- Logout (Tidak berubah) --}}

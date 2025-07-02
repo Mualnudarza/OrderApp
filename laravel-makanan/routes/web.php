@@ -30,14 +30,13 @@ Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->na
 Route::post('/register', [RegisterController::class, 'register']);
 
 // Rute yang dapat diakses TANPA autentikasi
-Route::get('/home', [HomeController::class, 'index'])->name('home'); // Daftar menu publik
+Route::get('/', [HomeController::class, 'index'])->name('home'); // Pindahkan rute root ke sini
+Route::get('/home', [HomeController::class, 'index'])->name('home'); // Tetap pertahankan /home juga
 
 // Rute yang memerlukan autentikasi
 Route::middleware(['auth'])->group(function () {
     // Rute Dashboard (Admin & Master bisa akses)
-    Route::get('/', function () {
-        return view('dashboard');
-    });
+    // Sekarang dashboard hanya bisa diakses setelah login
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
