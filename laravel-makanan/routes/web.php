@@ -1,14 +1,16 @@
 <?php
 
 use App\Http\Controllers\HomeController;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Route; // Abstraksi: Mengimpor Facade Route untuk mendefinisikan rute.
+                                      // Fungsi: Menyediakan antarmuka yang sederhana untuk mendaftarkan rute tanpa perlu
+                                      //        berinteraksi langsung dengan komponen routing yang lebih kompleks di bawahnya.
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ManajemenAksesController;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth; // Abstraksi: Mengimpor Facade Auth untuk fungsionalitas otentikasi.
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +24,9 @@ use Illuminate\Support\Facades\Auth;
 */
 
 // Rute Autentikasi (TIDAK di dalam middleware 'auth')
+// Enkapsulasi: Rute-rute ini mengelompokkan fungsionalitas login dan register.
+// Abstraksi: Nama rute (`name('login')`, `name('logout')`, `name('register')`)
+//            menyediakan cara yang stabil untuk mereferensikan URL tanpa perlu mengingat path sebenarnya.
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -30,17 +35,30 @@ Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->na
 Route::post('/register', [RegisterController::class, 'register']);
 
 // Rute yang dapat diakses TANPA autentikasi
+// Abstraksi: Rute ini mengarahkan ke HomeController::index tanpa memerlukan autentikasi.
 Route::get('/', [HomeController::class, 'index'])->name('home'); // Daftar menu publik
 Route::get('/home', [HomeController::class, 'index'])->name('home'); // Tetap pertahankan /home juga
 
 // Rute yang memerlukan autentikasi
+// Enkapsulasi: `Route::middleware(['auth'])->group(function () { ... });`
+//              mengelompokkan semua rute yang memerlukan autentikasi di bawah satu middleware.
+//              Ini mengemas aturan akses ke dalam satu blok kode.
+// Fungsi: Memastikan hanya pengguna yang sudah login yang dapat mengakses rute di dalamnya.
+// Cara kerja: Middleware 'auth' akan mencegat request dan mengarahkan pengguna ke halaman login jika belum terautentikasi.
 Route::middleware(['auth'])->group(function () {
     // Rute Dashboard (Admin & Master bisa akses)
+    // Enkapsulasi: Rute dashboard.
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
     // Rute untuk Kasir (Pemesanan & Laporan Pesanan)
+    // Enkapsulasi: `Route::middleware(['role:admin,kasir,master'])->group(function () { ... });`
+    //              mengelompokkan rute-rute yang dapat diakses oleh peran 'admin', 'kasir', dan 'master'.
+    //              Ini adalah contoh enkapsulasi aturan otorisasi.
+    // Polymorphism: Middleware 'role' dapat menerima berbagai nilai peran,
+    //               dan akan berperilaku berbeda (mengizinkan atau menolak akses)
+    //               tergantung pada peran pengguna yang sedang login.
     Route::middleware(['role:admin,kasir,master'])->group(function () { // Master juga bisa akses
         Route::get('/order', [OrderController::class, 'index'])->name('order.index');
         Route::post('/order', [OrderController::class, 'store'])->name('order.store');
@@ -49,6 +67,8 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Rute untuk Admin (Kategori, Menu, Histori Pesanan, Laporan Rekap)
+    // Enkapsulasi: Mengelompokkan rute-rute yang dapat diakses oleh peran 'admin' dan 'master'.
+    // Polymorphism: Sama seperti di atas, middleware 'role' menyesuaikan perilakunya.
     Route::middleware(['role:admin,master'])->group(function () { // Master juga bisa akses
         Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori');
         Route::post('/kategori', [KategoriController::class, 'store']);
@@ -68,6 +88,8 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Rute untuk Master (Manajemen Akses)
+    // Enkapsulasi: Mengelompokkan rute-rute yang hanya dapat diakses oleh peran 'master'.
+    // Polymorphism: Middleware 'role' dengan hanya satu nilai peran.
     Route::middleware(['role:master'])->group(function () {
         Route::get('/manajemen-akses', [ManajemenAksesController::class, 'index'])->name('manajemen.akses');
         Route::post('/manajemen-akses/store', [ManajemenAksesController::class, 'store'])->name('manajemen.akses.store'); // Rute baru untuk tambah user
