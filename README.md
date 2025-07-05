@@ -66,18 +66,10 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-Lalu buat database bernama `orderapp_db` di MySQL.
-
 ### 6. Jalankan Migrasi Database
 
 ```bash
 php artisan migrate
-```
-
-Jika ada data awal (seeder), Anda dapat menjalankan:
-
-```bash
-php artisan db:seed
 ```
 
 ---
@@ -96,16 +88,6 @@ Aplikasi akan tersedia di:
 http://127.0.0.1:8000
 ```
 
----
-
-## ⚙️ (Opsional) Menjalankan Frontend
-
-Jika proyek menggunakan Vite:
-
-```bash
-npm install
-npm run dev
-```
 
 ---
 
@@ -122,14 +104,4 @@ OrderApp/
     └── ...
 ```
 
----
 
-## ✍️ Kontribusi
-
-Silakan buat pull request jika Anda ingin menyumbang fitur atau perbaikan.
-
----
-
-## 📄 Lisensi
-
-Proyek ini menggunakan lisensi [MIT](LICENSE).
