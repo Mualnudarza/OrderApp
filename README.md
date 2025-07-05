@@ -1,61 +1,60 @@
 
-# 📦 Sistem Pemesanan Makanan - OrderApp
+# 📦 Aplikasi Pemesanan Makanan - OrderApp
 
-Repositori ini berisi sistem aplikasi **OrderApp** berbasis Laravel yang memungkinkan pengguna untuk melihat daftar makanan, mengelola kategori, serta melakukan pemesanan secara daring.
-
----
-
-## 🛠️ Persyaratan Sistem
-
-Pastikan Anda telah menginstal perangkat lunak berikut:
-
-- PHP versi 8.1 atau lebih tinggi
-- Composer
-- MySQL / SQLite (tergantung pengaturan database)
-- Git (untuk clone repository)
-- Node.js dan NPM (jika ingin menjalankan Vite / Laravel Mix)
+Selamat datang di repositori **OrderApp**, aplikasi berbasis Laravel yang dibuat untuk memudahkan pengguna dalam melihat daftar menu makanan, mengelola kategori, dan melakukan pemesanan secara online.
 
 ---
 
-## 🚀 Langkah Instalasi
+## 🛠️ Apa Saja yang Dibutuhkan?
 
-Ikuti langkah-langkah berikut untuk menginstal dan menjalankan aplikasi ini secara lokal:
+Sebelum mulai, pastikan perangkat berikut sudah terpasang di komputermu:
 
-### 1. Clone Repository
+- PHP versi 8.1 atau lebih baru  
+- Composer  
+- MySQL atau SQLite  
+- Git (untuk clone project)
+
+---
+
+## 🚀 Cara Instalasi
+
+Ikuti langkah-langkah berikut untuk menginstal dan menjalankan aplikasi secara lokal:
+
+### 1. Clone Project dari GitHub
 
 ```bash
-git clone https://github.com/nama-user/OrderApp.git
+git clone https://github.com/Mualnudarza/OrderApp.git
 cd OrderApp/laravel-makanan
 ```
 
-> Pastikan Anda berpindah direktori ke `laravel-makanan` karena seluruh kode Laravel berada di dalam folder tersebut.
+> Jangan lupa masuk ke folder `laravel-makanan`, karena di sanalah aplikasi Laravel-nya berada.
 
-### 2. Install Dependency PHP
+### 2. Install Dependency Laravel
 
 ```bash
 composer install
 ```
 
-### 3. Salin File .env
+### 3. Salin File Konfigurasi
 
 ```bash
 cp .env.example .env
 ```
 
-> Di Windows:  
+> Jika kamu pakai Windows:
 ```bash
 copy .env.example .env
 ```
 
-### 4. Generate Application Key
+### 4. Buat App Key Laravel
 
 ```bash
 php artisan key:generate
 ```
 
-### 5. Konfigurasi Database
+### 5. Atur Database
 
-Edit file `.env` dan sesuaikan dengan pengaturan database lokal Anda:
+Buka file `.env` lalu sesuaikan bagian database seperti berikut:
 
 ```env
 DB_CONNECTION=mysql
@@ -66,7 +65,9 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-### 6. Jalankan Migrasi Database
+Jangan lupa buat dulu database-nya di MySQL sesuai nama di atas (`orderapp_db`).
+
+### 6. Jalankan Migrasi
 
 ```bash
 php artisan migrate
@@ -76,26 +77,25 @@ php artisan migrate
 
 ## 🖥️ Menjalankan Aplikasi
 
-Masih berada di direktori `laravel-makanan`, jalankan perintah berikut:
+Masih di dalam folder `laravel-makanan`, jalankan perintah berikut:
 
 ```bash
 php artisan serve
 ```
 
-Aplikasi akan tersedia di:
+Aplikasi bisa dibuka lewat browser di alamat:
 
 ```
 http://127.0.0.1:8000
 ```
 
-
 ---
 
-## 📂 Struktur Folder
+## 📂 Struktur Folder Utama
 
 ```
 OrderApp/
-└── laravel-makanan/      ← Folder utama Laravel
+└── laravel-makanan/      ← Di sinilah semua file Laravel berada
     ├── app/
     ├── bootstrap/
     ├── config/
@@ -104,4 +104,6 @@ OrderApp/
     └── ...
 ```
 
+---
 
+Semoga panduan ini membantu! Kalau ada kendala saat instalasi, jangan ragu untuk bertanya atau membuka issue di repository ini. 😊
