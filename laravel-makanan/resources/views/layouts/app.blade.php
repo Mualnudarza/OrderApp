@@ -4,50 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PT. DWI WIRA USAHA BAKTI - @yield('title')</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
         :root {
-            --primary-color: #5C6BC0; /* A soft purple/blue for primary elements */
-            --secondary-color: #f0f2f5; /* Light background */
-            --card-background: #ffffff;
-            --text-color-dark: #333;
-            --text-color-light: #666;
-            --border-radius-lg: 1.5rem; /* Larger border-radius */
-            --box-shadow-light: 0 4px 12px rgba(0, 0, 0, 0.05); /* Soft shadow */
-            --box-shadow-md: 0 8px 20px rgba(0, 0, 0, 0.08); /* Slightly stronger shadow */
-            --sidebar-width: 280px;
+            --primary-color: #5C6BC0; /* Warna ungu/biru lembut untuk elemen utama */
+            --secondary-color: #f0f2f5; /* Latar belakang terang */
+            --card-background: #ffffff; /* Latar belakang kartu */
+            --text-color-dark: #333; /* Warna teks gelap */
+            --text-color-light: #666; /* Warna teks terang/sekunder */
+            --border-radius-lg: 1.5rem; /* Radius border lebih besar */
+            --border-radius-md: 0.75rem; /* Radius border menengah */
+            --box-shadow-light: 0 4px 12px rgba(0, 0, 0, 0.05); /* Shadow lembut */
+            --box-shadow-md: 0 8px 20px rgba(0, 0, 0, 0.08); /* Shadow sedikit lebih kuat */
+            --sidebar-width: 280px; /* Lebar sidebar */
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--secondary-color);
-            margin: 0;
-            padding: 0;
-            display: flex; /* Flex container for sidebar and content */
-            min-height: 100vh; /* Full viewport height */
+            /* margin dan padding dihapus untuk mengandalkan margin sidebar */
+            display: flex; /* Kontainer flex untuk sidebar dan konten */
+            min-height: 100vh; /* Tinggi viewport penuh */
             color: var(--text-color-dark);
         }
 
-        /* Sidebar Styling */
+        /* Styling Sidebar */
         #sidebar {
             width: var(--sidebar-width);
-            flex-shrink: 0; /* Prevent sidebar from shrinking */
-            background-color: var(--card-background); /* White background for sidebar */
+            flex-shrink: 0; /* Mencegah sidebar menyusut */
+            background-color: var(--card-background); /* Latar belakang putih untuk sidebar */
             padding: 2rem 1.5rem;
-            border-radius: var(--border-radius-lg);
-            margin: 2rem; /* Margin around the sidebar */
-            box-shadow: var(--box-shadow-md); /* Apply shadow to sidebar */
-            position: sticky;
-            top: 2rem; /* Stick to top with margin */
-            height: calc(100vh - 4rem); /* Adjust height to fit margins */
-            overflow-y: auto; /* Enable scrolling if content overflows */
+            border-radius: var(--border-radius-lg); /* Aktifkan kembali ini */
+            margin: 2rem; /* Aktifkan kembali ini */
+            box-shadow: var(--box-shadow-md); /* Terapkan shadow ke sidebar */
+            position: sticky; /* Membuat sidebar tetap di tempatnya saat scroll */
+            top: 2rem; /* Ubah kembali ke 2rem */
+            height: calc(100vh - 4rem); /* Ubah kembali ke calc */
+            overflow-y: auto; /* Aktifkan scroll jika konten meluap */
+            transition: all 0.3s ease; /* Transisi untuk toggle */
+            /* border-top-right-radius dan border-bottom-right-radius dihapus */
         }
 
         #sidebar::-webkit-scrollbar {
-            display: none; /* Hide scrollbar for aesthetic */
+            display: none; /* Sembunyikan scrollbar untuk estetika */
+        }
+
+        /* Toggle state for sidebar */
+        #sidebar.toggled {
+            left: -var(--sidebar-width); /* Sembunyikan sidebar di luar layar */
+            position: fixed; /* Penting untuk toggle di mobile */
+            margin: 0; /* Hapus margin saat toggled */
+            border-radius: 0; /* Hapus border-radius saat toggled */
+            box-shadow: 0 0 20px rgba(0,0,0,0.2); /* Shadow saat terbuka di mobile */
+            z-index: 1030; /* Di atas navbar di mobile */
+            height: 100vh; /* Tinggi penuh di mobile */
+            top: 0;
+            padding: 1.5rem;
         }
 
         .sidebar-header {
@@ -97,14 +112,14 @@
             text-transform: uppercase;
             margin-bottom: 1rem;
             margin-top: 1.5rem;
-            padding-left: 1rem; /* Indent menu category */
+            padding-left: 1rem; /* Indent kategori menu */
         }
         .sidebar-menu .list-group-item {
             background-color: transparent;
             border: none;
             color: var(--text-color-dark);
             padding: 0.85rem 1rem;
-            border-radius: 0.75rem; /* Rounded menu items */
+            border-radius: 0.75rem; /* Item menu bulat */
             margin-bottom: 0.5rem;
             transition: all 0.2s ease-in-out;
             display: flex;
@@ -116,7 +131,7 @@
             color: var(--text-color-light);
         }
         .sidebar-menu .list-group-item:hover {
-            background-color: var(--secondary-color); /* Lighter hover state */
+            background-color: var(--secondary-color); /* Hover state lebih terang */
             color: var(--primary-color);
         }
         .sidebar-menu .list-group-item:hover i {
@@ -125,19 +140,26 @@
         .sidebar-menu .list-group-item.active {
             background-color: var(--primary-color);
             color: #fff;
-            box-shadow: var(--box-shadow-light); /* Shadow for active item */
+            box-shadow: var(--box-shadow-light); /* Shadow untuk item aktif */
         }
         .sidebar-menu .list-group-item.active i {
             color: #fff;
         }
 
-        /* Main Content Styling */
+        /* Styling Konten Utama */
         #main-content {
-            flex-grow: 1; /* Allow content to take remaining space */
-            padding: 2rem;
+            flex-grow: 1; /* Memungkinkan konten mengambil sisa ruang */
+            padding: 2rem; /* Padding di sekitar konten utama */
+            transition: margin-left 0.3s ease; /* Transisi untuk toggle */
+            /* margin-left: var(--sidebar-width); -- Baris ini dihapus */
         }
 
-        /* Header (Navbar) Styling */
+        /* Toggle state for main content */
+        #main-content.toggled {
+            margin-left: 0; /* Geser konten ke kiri saat sidebar terbuka di mobile */
+        }
+
+        /* Styling Header (Navbar) */
         .dashboard-header {
             background-color: var(--card-background);
             padding: 1.5rem 2rem;
@@ -147,6 +169,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            flex-wrap: wrap; /* Izinkan wrapping pada layar kecil */
         }
         .dashboard-header .greeting h1 {
             font-size: 1.8rem;
@@ -161,6 +184,8 @@
         .dashboard-header .header-actions {
             display: flex;
             align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
         .dashboard-header .header-actions .search-box {
             position: relative;
@@ -168,10 +193,10 @@
         }
         .dashboard-header .header-actions .search-box input {
             border: none;
-            background-color: var(--secondary-color); /* Background for search input */
+            background-color: var(--secondary-color); /* Latar belakang untuk input pencarian */
             border-radius: 0.75rem;
             padding: 0.75rem 1.25rem;
-            padding-left: 3rem; /* Space for icon */
+            padding-left: 3rem; /* Ruang untuk ikon */
             width: 250px;
             font-size: 0.95rem;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03); /* Inner shadow */
@@ -199,7 +224,7 @@
             font-size: 1.2rem;
         }
         .dashboard-header .header-actions .btn-add-project:hover {
-            background-color: #495057; /* Darker on hover */
+            background-color: #495057; /* Lebih gelap saat hover */
         }
 
         .header-icons .icon-button {
@@ -218,14 +243,14 @@
             transform: translateY(-2px);
         }
 
-        /* General Card Styling */
+        /* Styling Kartu Umum */
         .card {
             background-color: var(--card-background);
             border: none;
             border-radius: var(--border-radius-lg);
             box-shadow: var(--box-shadow-light);
             padding: 1.5rem;
-            margin-bottom: 1.5rem; /* Consistent spacing between cards */
+            margin-bottom: 1.5rem; /* Spasi konsisten antar kartu */
         }
 
         .card-header {
@@ -238,7 +263,7 @@
             color: var(--text-color-dark);
         }
 
-        /* Master Grid Layout */
+        /* Tata Letak Grid Master */
         .master-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -257,8 +282,8 @@
             box-shadow: var(--box-shadow-light);
             transition: all 0.2s ease-in-out;
             cursor: pointer;
-            text-decoration: none; /* Remove underline for links */
-            color: inherit; /* Inherit text color */
+            text-decoration: none; /* Hapus garis bawah untuk tautan */
+            color: inherit; /* Warisi warna teks */
         }
 
         .master-item:hover {
@@ -267,7 +292,7 @@
         }
 
         .master-item i {
-            font-size: 3.5rem; /* Larger icon size */
+            font-size: 3.5rem; /* Ukuran ikon lebih besar */
             margin-bottom: 1rem;
             color: var(--primary-color);
         }
@@ -278,13 +303,13 @@
             color: var(--text-color-dark);
         }
 
-        /* Form Styling */
+        /* Styling Form */
         .form-control, .form-select, .btn {
-            border-radius: 0.75rem; /* Larger border-radius for form elements */
+            border-radius: 0.75rem; /* Radius border lebih besar untuk elemen form */
             padding: 0.75rem 1.25rem;
         }
         .form-control:focus, .form-select:focus {
-            box-shadow: 0 0 0 0.25rem rgba(92, 107, 192, 0.25); /* Primary color focus glow */
+            box-shadow: 0 0 0 0.25rem rgba(92, 107, 192, 0.25); /* Glow fokus warna primer */
             border-color: var(--primary-color);
         }
         .btn-primary {
@@ -293,11 +318,11 @@
             transition: background-color 0.2s;
         }
         .btn-primary:hover {
-            background-color: #48569a; /* Slightly darker primary on hover */
+            background-color: #48569a; /* Warna primer sedikit lebih gelap saat hover */
             border-color: #48569a;
         }
         .btn-success {
-            background-color: #66BB6A; /* Green for success/save */
+            background-color: #66BB6A; /* Hijau untuk sukses/simpan */
             border-color: #66BB6A;
         }
         .btn-success:hover {
@@ -306,7 +331,7 @@
         .btn-outline-primary {
             color: var(--primary-color);
             border-color: var(--primary-color);
-            border-width: 2px; /* Thicker border for outline buttons */
+            border-width: 2px; /* Border lebih tebal untuk tombol outline */
             border-radius: 0.75rem;
         }
         .btn-outline-primary:hover {
@@ -314,7 +339,7 @@
             color: #fff;
         }
         .btn-outline-danger {
-            color: #EF5350; /* Red for danger */
+            color: #EF5350; /* Merah untuk bahaya */
             border-color: #EF5350;
             border-width: 2px;
             border-radius: 0.75rem;
@@ -324,16 +349,16 @@
             color: #fff;
         }
         .btn-secondary {
-            background-color: #B0BEC5; /* Gray for secondary */
+            background-color: #B0BEC5; /* Abu-abu untuk sekunder */
             border-color: #B0BEC5;
         }
         .btn-secondary:hover {
             background-color: #92a4ad;
         }
 
-        /* List Group Items (for menu/category listings) */
+        /* List Group Items (untuk daftar menu/kategori) */
         .list-group-item {
-            background-color: var(--secondary-color); /* Lighter background for list items */
+            background-color: var(--secondary-color); /* Latar belakang lebih terang untuk item daftar */
             border: none;
             border-radius: 0.75rem;
             padding: 1rem 1.5rem;
@@ -341,15 +366,15 @@
             box-shadow: var(--box-shadow-light);
         }
 
-        /* Modal Overrides */
+        /* Override Modal */
         .modal-content {
             border-radius: var(--border-radius-lg);
             box-shadow: var(--box-shadow-md);
-            padding: 1.5rem; /* Padding inside modal content */
+            padding: 1.5rem; /* Padding di dalam konten modal */
         }
         .modal-header {
             border-bottom: none;
-            padding: 0 0 1rem 0; /* Adjust header padding */
+            padding: 0 0 1rem 0; /* Sesuaikan padding header */
             margin-bottom: 1rem;
         }
         .modal-title {
@@ -357,21 +382,21 @@
             color: var(--text-color-dark);
         }
         .modal-body {
-            padding: 0; /* Remove default body padding */
+            padding: 0; /* Hapus padding body default */
         }
         .modal-footer {
             border-top: none;
-            padding: 1.5rem 0 0 0; /* Adjust footer padding */
+            padding: 1.5rem 0 0 0; /* Sesuaikan padding footer */
             justify-content: flex-end;
         }
 
-        /* Calendar Card Example (from the design - just for demonstration) */
+        /* Contoh Kartu Kalender (dari desain - hanya untuk demonstrasi) */
         .calendar-card {
             background-color: var(--card-background);
             border-radius: var(--border-radius-lg);
             box-shadow: var(--box-shadow-light);
             padding: 1.5rem;
-            height: fit-content; /* Adjust height as needed */
+            height: fit-content; /* Sesuaikan tinggi sesuai kebutuhan */
         }
         .calendar-card .card-header {
             display: flex;
@@ -409,7 +434,7 @@
         .event-list .event-details {
             margin-left: 0.75rem;
             padding-left: 0.75rem;
-            border-left: 2px solid var(--primary-color); /* Event line */
+            border-left: 2px solid var(--primary-color); /* Garis event */
         }
         .event-list .event-details strong {
             font-size: 0.95rem;
@@ -420,7 +445,7 @@
             font-size: 0.8rem;
             color: var(--text-color-light);
         }
-        /* Custom card colors for master grid example */
+        /* Warna kartu kustom untuk contoh grid master */
         .card-purple {
             background-color: #7B68EE; /* MediumSlateBlue */
             color: white;
@@ -501,9 +526,71 @@
                 margin-bottom: 1.5rem;
             }
         }
+
+        /* Styling untuk Modal Akses Ditolak */
+        .access-denied-modal .modal-content {
+            border-radius: 1rem;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            background-color: var(--card-background);
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        .access-denied-modal .modal-header {
+            border-bottom: none;
+            justify-content: center;
+            padding-bottom: 0;
+        }
+
+        .access-denied-modal .modal-body {
+            padding: 1.5rem 1rem 1rem 1rem;
+            color: var(--text-color-dark);
+        }
+
+        .access-denied-modal .modal-body .bi {
+            font-size: 4rem; /* Ukuran ikon lebih besar */
+            color: #dc3545; /* Warna merah untuk ikon peringatan */
+            margin-bottom: 1rem;
+            display: block; /* Agar ikon berada di tengah */
+        }
+
+        .access-denied-modal .modal-body h5 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .access-denied-modal .modal-body p {
+            font-size: 1rem;
+            color: var(--text-color-light);
+            margin-bottom: 1.5rem;
+        }
+
+        .access-denied-modal .modal-footer {
+            border-top: none;
+            justify-content: center;
+            padding-top: 0;
+        }
+
+        .access-denied-modal .btn-close-modal {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+
+        .access-denied-modal .btn-close-modal:hover {
+            background-color: #4a5a9e;
+        }
     </style>
 </head>
 <body>
+    @auth {{-- Tampilkan sidebar dan header utama hanya jika pengguna sudah login --}}
     <div id="sidebar">
         <div class="sidebar-header">
             <span class="app-logo"><i class="bi bi-bar-chart-fill"></i> Chaart</span>
@@ -519,7 +606,7 @@
         <div class="sidebar-menu">
             <div class="menu-category">MENU</div>
             {{-- Dashboard --}}
-            <a href="/" class="list-group-item @if(Request::is('/')) active @endif">
+            <a href="/dashboard" class="list-group-item @if(Request::is('dashboard')) active @endif">
                 <i class="bi bi-house-door-fill"></i> Dashboard
             </a>
             {{-- Menu Makanan --}}
@@ -530,43 +617,44 @@
             <a href="/kategori" class="list-group-item @if(Request::is('kategori*')) active @endif">
                 <i class="bi bi-bookmark-fill"></i> Kategori
             </a>
-            {{-- Tracking (Tidak berubah) --}}
-            <a href="/home" class="list-group-item @if(Request::is('home*')) active @endif">
+            {{-- Daftar Menu (Publik) - Ini tidak perlu di sidebar admin --}}
+            {{-- <a href="/home" class="list-group-item @if(Request::is('home*')) active @endif">
                 <i class="bi bi-compass"></i> Daftar Menu
-            </a>
+            </a> --}}
 
             {{-- Menambahkan Menu Pemesanan, History Pesanan, dan Laporan Pemesanan --}}
-            <a href="/order" class="list-group-item @if(Request::is('order*')) active @endif">
+            <a href="{{ route('order.index') }}" class="list-group-item @if(Request::is('order*')) active @endif">
                 <i class="bi bi-bag-check"></i> Pemesanan
             </a>
-            <a href="/histori-pesanan" class="list-group-item @if(Request::is('histori-pesanan*')) active @endif">
+            <a href="{{ route('historipesanan.list') }}" class="list-group-item @if(Request::is('histori-pesanan*')) active @endif">
                 <i class="bi bi-clock-history"></i> History Pesanan
             </a>
-            <a href="/laporan-pesanan" class="list-group-item @if(Request::is('laporan-pesanan*')) active @endif">
+            <a href="{{ route('laporanpesanan.list') }}" class="list-group-item @if(Request::is('laporan-pesanan*')) active @endif">
                 <i class="bi bi-file-earmark-text"></i> Laporan Pemesanan
             </a>
             {{-- Akhir Penambahan Menu --}}
 
             <div class="menu-category">Setting</div>
-            {{-- Setting (Tidak berubah) --}}
-            <a href="#" class="list-group-item" @if(Request::is('histori-pesanan*')) active @endif">
+            {{-- Setting --}}
+            <a href="{{ route('manajemen.akses') }}" class="list-group-item @if(Request::is('manajemen-akses*')) active @endif">
                 <i class="bi bi-person-gear"></i> Manajemen Akses
             </a>
-            {{-- Logout (Tidak berubah) --}}
+            {{-- Logout --}}
             <li class="sidebar-menu-item mt-auto" style="list-style: none; padding: 0; margin: 0;">
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                     @csrf
                 </form>
-            
+
                 <a href="#" class="list-group-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <i class="bi bi-box-arrow-right"></i> Logout
                 </a>
             </li>
-            
-            
         </div>
     </div>
+    @endauth
+
     <div id="main-content">
+        @auth {{-- Tampilkan header utama hanya jika pengguna sudah login --}}
         <header class="dashboard-header">
             <div class="greeting">
                 <h1>Hello, {{ Auth::user()->name }}</h1> {{-- Nama pengguna dari database --}}
@@ -586,25 +674,87 @@
                 </div>
             </div>
         </header>
+        @endauth
 
         @yield('content')
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    {{-- Modal Akses Ditolak --}}
+    <div class="modal fade access-denied-modal" id="accessDeniedModal" tabindex="-1" aria-labelledby="accessDeniedModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <i class="bi bi-exclamation-circle-fill"></i> {{-- Ikon peringatan --}}
+                    <h5>Akses Ditolak!</h5>
+                    <p>Maaf, Anda tidak memiliki izin untuk mengakses halaman ini.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-close-modal" data-bs-dismiss="modal">Oke, Mengerti</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const sidebar = document.getElementById('sidebar');
             const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+            const mainContent = document.getElementById('main-content'); // ID konten utama Anda
 
+            // Logika toggle sidebar untuk mobile
             if (mobileSidebarToggle) {
                 mobileSidebarToggle.addEventListener('click', function () {
-                    sidebar.classList.toggle('toggled');
+                    if (sidebar) sidebar.classList.toggle('toggled');
+                    // mainContent tidak perlu ditoggle class 'toggled' di sini karena
+                    // kita akan mengelola margin-left-nya secara terpisah atau dengan media query
                 });
             }
 
             // Close sidebar when clicking outside on mobile
             document.addEventListener('click', function(event) {
-                if (sidebar.classList.contains('toggled') && !sidebar.contains(event.target) && !mobileSidebarToggle.contains(event.target)) {
+                // Pastikan sidebar ada dan sedang dalam mode toggled (terbuka di mobile)
+                // Dan klik terjadi di luar sidebar dan di luar tombol toggle
+                if (window.innerWidth <= 992 && sidebar && sidebar.classList.contains('toggled') &&
+                    !sidebar.contains(event.target) && !mobileSidebarToggle.contains(event.target)) {
                     sidebar.classList.remove('toggled');
+                }
+            });
+
+            // Logika untuk menampilkan Modal Akses Ditolak
+            @if (session('showAccessDeniedModal'))
+                console.log('DEBUG: Session showAccessDeniedModal terdeteksi, mencoba menampilkan modal.');
+                var accessDeniedModal = new bootstrap.Modal(document.getElementById('accessDeniedModal'));
+                accessDeniedModal.show();
+            @endif
+
+            // Logika untuk menandai menu sidebar yang aktif
+            const currentPath = window.location.pathname;
+            const sidebarLinks = document.querySelectorAll('.sidebar-menu a'); // Target semua <a> di dalam .sidebar-menu
+
+            sidebarLinks.forEach(link => {
+                // Hapus kelas 'active' dari semua link terlebih dahulu
+                link.classList.remove('active');
+
+                // Normalisasi path saat ini (hapus trailing slash kecuali untuk root '/')
+                const normalizedCurrentPath = (currentPath.length > 1 && currentPath.endsWith('/'))
+                    ? currentPath.slice(0, -1)
+                    : currentPath;
+
+                // Dapatkan href dari link dan normalisasi juga
+                const linkHref = link.getAttribute('href');
+                const normalizedLinkHref = (linkHref && linkHref.length > 1 && linkHref.endsWith('/'))
+                    ? linkHref.slice(0, -1)
+                    : linkHref;
+
+                // Logika penandaan aktif
+                if (normalizedCurrentPath === normalizedLinkHref) {
+                    link.classList.add('active');
+                }
+                // Jika path saat ini dimulai dengan link href dan link href bukan root ("/")
+                // Ini untuk menangani rute bersarang seperti /menu/edit/1 mengaktifkan /menu
+                else if (normalizedLinkHref !== '/' && normalizedCurrentPath.startsWith(normalizedLinkHref)) {
+                    link.classList.add('active');
                 }
             });
         });

@@ -11,7 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Daftarkan middleware rute kustom Anda di sini
+        $middleware->alias([
+            'role' => \App\Http\Middleware\CheckRole::class,
+        ]);
+
+        // Anda juga bisa menambahkan middleware global atau grup di sini jika diperlukan
+        // Contoh:
+        // $middleware->web(append: [
+        //     \App\Http\Middleware\TrustProxies::class,
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
