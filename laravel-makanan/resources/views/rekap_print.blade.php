@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $reportTitle ?? 'Rekap Laporan Histori Pesanan' }}</title>
+    <title>{{ $reportTitle ?? 'Rekap Laporan Histori Pesanan' }}</title> {{-- Abstraksi: Variabel $reportTitle menyediakan judul laporan secara dinamis. --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* Abstraksi: Variabel CSS dan kelas Bootstrap mengabstraksi detail styling,
+           memungkinkan perubahan tampilan yang konsisten di seluruh laporan. */
         body {
             font-family: 'Inter', sans-serif;
             padding: 20px;
@@ -67,6 +69,7 @@
         }
         .text-status-completed { color: #198754; font-weight: bold; } /* Bootstrap success */
         .text-status-cancelled { color: #dc3545; font-weight: bold; } /* Bootstrap danger */
+        .text-status-pending { color: #ffc107; font-weight: bold; } /* Bootstrap warning */
 
         @media print {
             body {
@@ -113,6 +116,9 @@
             <p>PT. DWI WIRA USAHA BAKTI</p>
         </div>
 
+        {{-- Enkapsulasi: Bagian ringkasan ini mengelompokkan data statistik laporan.
+             Abstraksi: Variabel seperti $filteredOrders->count(), $totalCompletedOrders, dll.,
+             menyediakan ringkasan tanpa perlu tahu bagaimana angka-angka ini dihitung di controller. --}}
         <div class="summary-box">
             <h5>Ringkasan Laporan</h5>
             <p><strong>Total Pesanan Ditemukan:</strong> {{ $filteredOrders->count() }}</p>
@@ -126,6 +132,7 @@
                 Tidak ada data pesanan yang cocok dengan filter yang dipilih.
             </div>
         @else
+            {{-- Enkapsulasi: Tabel ini mengelompokkan semua detail pesanan individual. --}}
             <table class="order-table">
                 <thead>
                     <tr>
@@ -140,17 +147,25 @@
                 </thead>
                 <tbody>
                     @foreach($filteredOrders as $order)
+                        {{-- Abstraksi: Setiap baris tabel merepresentasikan satu objek 'Order'.
+                             Blade mengakses properti objek ($order->id, $order->nama_pemesan, dll.)
+                             tanpa perlu tahu bagaimana data tersebut diambil dari database. --}}
                         <tr>
                             <td>{{ $order->id }}</td>
                             <td>{{ $order->nama_pemesan }}</td>
                             <td>{{ $order->meja_nomor ?? '-' }}</td>
                             <td>
+                                {{-- Polymorphism: Kelas CSS yang diterapkan pada span status (`text-status-{{ $order->status }}`)
+                                     berubah secara dinamis berdasarkan nilai properti `status` dari objek `$order`.
+                                     Ini adalah bentuk polymorphism dalam presentasi visual. --}}
                                 <span class="text-status-{{ $order->status }}">
                                     {{ ucfirst($order->status) }}
                                 </span>
                             </td>
                             <td>Rp{{ number_format($order->total_harga, 0, ',', '.') }}</td>
                             <td>
+                                {{-- Abstraksi: Mengakses relasi `orderItems` dan kemudian relasi `menu` dari setiap `orderItems`.
+                                     Eloquent ORM mengabstraksi JOIN database yang diperlukan untuk mengambil data ini. --}}
                                 <ul class="order-items-list">
                                     @foreach($order->orderItems as $item)
                                         <li>{{ $item->menu->nama }} (x{{ $item->quantity }}) - Rp{{ number_format($item->harga_per_item * $item->quantity, 0, ',', '.') }}</li>
