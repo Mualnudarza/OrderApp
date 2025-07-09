@@ -27,10 +27,10 @@ Cara kerja: Semua kode HTML di dalam `@section('content')` akan ditempatkan pada
                @endif
 
                {{-- Enkapsulasi: Form ini mengelompokkan semua input dan aksi terkait pemesanan.
-                    Fungsi: Mengumpulkan informasi pemesan dan menu yang dipilih untuk diproses. --}}
+                   Fungsi: Mengumpulkan informasi pemesan dan menu yang dipilih untuk diproses. --}}
                <form id="orderForm" action="{{ route('order.store') }}" method="POST">
                    @csrf {{-- Abstraksi: Direktif Blade ini secara otomatis menghasilkan token CSRF
-                           untuk melindungi dari serangan Cross-Site Request Forgery. --}}
+                             untuk melindungi dari serangan Cross-Site Request Forgery. --}}
                    <div class="row mb-4">
                        <div class="col-md-6 mb-3 mb-md-0">
                            <label for="nama_pemesan" class="form-label">Nama Pemesan</label>
@@ -63,8 +63,8 @@ Cara kerja: Semua kode HTML di dalam `@section('content')` akan ditempatkan pada
                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mb-4" id="menuListContainer">
                        @forelse($menus as $menu)
                            {{-- Enkapsulasi: Setiap div 'col menu-item' mengemas tampilan satu objek 'Menu'.
-                                Data atribut (`data-menu-id`, `data-menu-name`, dll.) adalah bentuk enkapsulasi data
-                                yang akan digunakan oleh JavaScript. --}}
+                               Data atribut (`data-menu-id`, `data-menu-name`, dll.) adalah bentuk enkapsulasi data
+                               yang akan digunakan oleh JavaScript. --}}
                            <div class="col menu-item"
                                 data-menu-id="{{ $menu->id }}"
                                 data-menu-name="{{ $menu->nama }}"
@@ -288,7 +288,7 @@ Cara kerja: Semua kode HTML di dalam `@section('content')` akan ditempatkan pada
 <script>
 // Objek untuk menyimpan item yang dipilih di keranjang
 let cart = {}; {{-- Enkapsulasi Data: Objek 'cart' mengelompokkan semua item yang dipilih
-                    dan kuantitasnya, menjaga state keranjang. --}}
+                     dan kuantitasnya, menjaga state keranjang. --}}
 
 document.addEventListener('DOMContentLoaded', function() {
    const menuItems = document.querySelectorAll('.menu-item');
@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
                        <td>${item.name}</td>
                        <td>
                            <input type="number" class="form-control form-control-sm cart-quantity-input"
-                                  data-menu-id="${item.id}" value="${item.quantity}" min="1" style="width: 70px;">
+                                   data-menu-id="${item.id}" value="${item.quantity}" min="1" style="width: 70px;">
                        </td>
                        <td>Rp${item.price.toLocaleString('id-ID')}</td>
                        <td>Rp${(item.price * item.quantity).toLocaleString('id-ID')}</td>
@@ -453,6 +453,26 @@ document.addEventListener('DOMContentLoaded', function() {
            validationModal.show();
            return;
        }
+
+       // --- START: New validation for quantity > 50 ---
+       let quantityExceedsLimit = false;
+       let exceedingMenuItemName = '';
+       for (const menuId in cart) {
+           const item = cart[menuId];
+           if (item.quantity > 50) {
+               quantityExceedsLimit = true;
+               exceedingMenuItemName = item.name;
+               break; // Exit loop once one item exceeds the limit
+           }
+       }
+
+       if (quantityExceedsLimit) {
+           validationMessage.textContent = `Kuantitas untuk menu "${exceedingMenuItemName}" melebihi batas 50 item. Harap kurangi kuantitas atau buat pesanan terpisah.`;
+           validationModal.show();
+           return; // Stop further processing if validation fails
+       }
+       // --- END: New validation for quantity > 50 ---
+
 
        // Update modal content
        document.getElementById('invoiceNamaPemesan').textContent = namaPemesan;

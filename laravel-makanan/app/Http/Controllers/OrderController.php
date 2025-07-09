@@ -26,226 +26,144 @@ use Carbon\Carbon; // Abstraksi: Mengimpor Carbon untuk manipulasi tanggal dan w
 class OrderController extends Controller
 {
     /**
-     * Menampilkan daftar menu untuk halaman pemesanan.
-     * Enkapsulasi: Metode ini mengemas logika untuk mengambil data menu dan kategori,
-     * serta menampilkan view 'order'.
-     * Abstraksi: Menggunakan Eloquent ORM (`Menu::with('kategori')->get()`, `Kategori::all()`)
-     * untuk mengambil data dari database tanpa menulis query SQL mentah.
+     * Menampilkan daftar menu yang tersedia untuk pemesanan.
+     * Fungsi: Mengambil semua menu dan kategori dari database untuk ditampilkan kepada pengguna.
+     * Abstraksi: Menggunakan model Menu dan Kategori untuk mengambil data.
      */
     public function index()
     {
-        // Abstraksi: Mengambil semua menu beserta kategori terkait.
-        // `with('kategori')` adalah contoh abstraksi eager loading relasi.
-        $menus = Menu::with('kategori')->get();
-        // Abstraksi: Mengambil semua kategori.
-        $kategoris = Kategori::all();
-        // Enkapsulasi: Mengembalikan view 'order' dengan data yang sudah disiapkan.
+        $menus = Menu::with('kategori')->get(); // Ambil semua menu beserta kategorinya
+        $kategoris = Kategori::all(); // Ambil semua kategori
         return view('order', compact('menus', 'kategoris'));
     }
 
     /**
      * Menyimpan pesanan baru ke database.
-     * Enkapsulasi: Mengemas seluruh alur pembuatan pesanan, mulai dari validasi,
-     * perhitungan total, hingga penyimpanan ke database dalam sebuah transaksi.
-     * Abstraksi: Menggunakan `$request->validate()` untuk validasi input,
-     * `DB::beginTransaction()`/`DB::commit()`/`DB::rollBack()` untuk manajemen transaksi,
-     * `Menu::find()` untuk mencari menu, `Order::create()` untuk membuat pesanan,
-     * dan `$order->orderItems()->create()` untuk menambahkan item pesanan.
-     * Polymorphism: Metode `validate` pada objek Request dapat digunakan untuk berbagai
-     * aturan validasi pada input yang berbeda. Metode `create` pada model Order dan OrderItem
-     * melakukan operasi INSERT yang berbeda tergantung pada modelnya.
+     * Fungsi: Memproses data pesanan dari form, termasuk nama pemesan, nomor meja,
+     * dan daftar item menu yang dipesan beserta kuantitasnya.
+     * Enkapsulasi: Menggunakan transaksi database untuk memastikan semua operasi (membuat pesanan dan item pesanan)
+     * berhasil secara atomik. Jika ada kegagalan, semua perubahan akan dibatalkan (rollback).
+     * Polymorphism: Metode `create()` pada model `Order` dan `OrderItem` akan melakukan operasi INSERT.
      */
     public function store(Request $request)
     {
-        // Abstraksi: Validasi data yang masuk dari form.
+        // Abstraksi: Validasi input dari request.
         $request->validate([
             'nama_pemesan' => 'required|string|max:255',
             'meja_nomor' => 'nullable|string|max:255',
-            'menu_ids' => 'required|string', // Menerima sebagai string JSON
-            'quantities' => 'required|string', // Menerima sebagai string JSON
+            'menu_ids' => 'required|array',
+            'menu_ids.*' => 'exists:menus,id', // Pastikan setiap ID menu ada di tabel menus
+            'quantities' => 'required|array',
+            'quantities.*' => 'integer|min:1', // Pastikan setiap kuantitas adalah integer positif
         ]);
 
-        // Enkapsulasi: Mengubah string JSON menjadi array PHP.
-        $menuIds = json_decode($request->menu_ids, true);
-        $quantities = json_decode($request->quantities, true);
-
-        // Enkapsulasi: Logika validasi tambahan untuk memastikan integritas data.
-        if (!is_array($menuIds) || !is_array($quantities) || count($menuIds) !== count($quantities)) {
-            return redirect()->back()->with('error', 'Data menu tidak valid.');
-        }
-
-        // Abstraksi: Memulai transaksi database. Ini mengelompokkan operasi database
-        // sehingga semuanya berhasil atau tidak sama sekali.
+        // Enkapsulasi: Memulai transaksi database.
         DB::beginTransaction();
 
         try {
-            $totalHarga = 0;
-            $orderItemsData = [];
-
-            // Enkapsulasi: Mengambil detail menu yang dipesan dan menghitung total harga.
-            foreach ($menuIds as $index => $menuId) {
-                // Abstraksi: Mencari menu berdasarkan ID.
-                $menu = Menu::find($menuId);
-                $quantity = $quantities[$index];
-
-                if ($menu && $quantity > 0) {
-                    $hargaPerItem = $menu->harga;
-                    $totalHarga += ($hargaPerItem * $quantity);
-
-                    $orderItemsData[] = [
-                        'menu_id' => $menuId,
-                        'quantity' => $quantity,
-                        'harga_per_item' => $hargaPerItem,
-                    ];
-                }
-            }
-
-            // Abstraksi/Polymorphism: Membuat entri pesanan baru di tabel orders.
-            // Metode `create` pada model `Order` mengabstraksi query INSERT.
+            // Buat pesanan baru
             $order = Order::create([
                 'nama_pemesan' => $request->nama_pemesan,
                 'meja_nomor' => $request->meja_nomor,
-                'total_harga' => $totalHarga,
                 'status' => 'pending', // Status awal pesanan
+                'total_harga' => 0, // Akan dihitung setelah item ditambahkan
             ]);
 
-            // Abstraksi/Polymorphism: Menyimpan setiap item pesanan ke tabel order_items.
-            // Metode `orderItems()` mengabstraksi relasi dan `create()` menambahkan item terkait.
-            foreach ($orderItemsData as $itemData) {
-                $order->orderItems()->create($itemData);
+            $totalHarga = 0;
+            // Iterasi melalui menu yang dipesan dan tambahkan ke order_items
+            foreach ($request->menu_ids as $index => $menuId) {
+                $menu = Menu::find($menuId);
+                $quantity = $request->quantities[$index];
+
+                if ($menu && $quantity > 0) {
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'menu_id' => $menu->id,
+                        'quantity' => $quantity,
+                        'price' => $menu->harga,
+                        'subtotal' => $menu->harga * $quantity,
+                    ]);
+                    $totalHarga += ($menu->harga * $quantity);
+                }
             }
 
-            // Abstraksi: Commit transaksi jika semua operasi berhasil.
+            // Perbarui total harga pesanan
+            $order->total_harga = $totalHarga;
+            $order->save(); // Polymorphism: Menyimpan perubahan pada objek Order.
+
+            // Enkapsulasi: Commit transaksi jika semua operasi berhasil.
             DB::commit();
 
-            // Enkapsulasi: Mengarahkan pengguna kembali dengan pesan sukses.
+            // Redirect ke halaman laporan pesanan yang sedang diproses
             return redirect()->route('laporanpesanan.list')->with('success', 'Pesanan berhasil dibuat!');
 
         } catch (\Exception $e) {
-            // Abstraksi: Rollback transaksi jika terjadi kesalahan.
+            // Enkapsulasi: Rollback transaksi jika terjadi kesalahan.
             DB::rollBack();
-            // Enkapsulasi: Mengarahkan pengguna kembali dengan pesan error.
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat membuat pesanan: ' . $e->getMessage());
+            // Abstraksi: Mengembalikan pengguna dengan pesan error.
+            return back()->with('error', 'Gagal membuat pesanan: ' . $e->getMessage())->withInput();
         }
     }
 
     /**
-     * Menampilkan daftar pesanan yang berstatus 'pending' (Laporan Pesanan Aktif).
-     * Enkapsulasi: Mengemas logika pengambilan data pesanan aktif dan menampilkan view.
-     * Abstraksi: Menggunakan Eloquent ORM (`Order::with()`, `where()`, `orderBy()`, `get()`)
-     * untuk membangun query database secara terstruktur tanpa SQL mentah.
+     * Menampilkan daftar pesanan yang masih dalam status 'pending'.
+     * Fungsi: Mengambil semua pesanan dengan status 'pending' dari database
+     * dan menampilkannya di halaman laporan pesanan.
+     * Abstraksi: Menggunakan model Order dan relasi 'orderItems' dan 'menu'
+     * untuk mengambil data yang diperlukan.
      */
-    public function showOrders()
+    public function showPendingOrders()
     {
-        // Abstraksi: Mengambil pesanan yang statusnya 'pending', dengan eager loading relasi.
-        // `where('status', 'pending')` adalah contoh abstraksi filter data.
-        // `orderBy('created_at', 'asc')` adalah contoh abstraksi pengurutan data (FIFO: data baru di bawah).
-        $orders = Order::with('orderItems.menu')
-                        ->where('status', 'pending')
-                        ->orderBy('created_at', 'asc')
-                        ->get();
-        // Enkapsulasi: Mengembalikan view 'laporanpesanan' dengan data pesanan aktif.
-        return view('laporanpesanan', compact('orders'));
+        // Ambil semua pesanan dengan status 'pending'
+        // Eager load orderItems dan menu terkait untuk menghindari N+1 query problem
+        $orders = Order::where('status', 'pending') // Mengubah nama variabel dari $pendingOrders menjadi $orders
+                               ->with(['orderItems.menu', 'orderItems.menu.kategori'])
+                               ->orderBy('created_at', 'asc') // Urutkan dari yang paling lama
+                               ->get();
+
+        // Mengembalikan view 'laporanpesanan' dengan data pesanan pending
+        return view('laporanpesanan', compact('orders')); // Mengirimkan variabel $orders
     }
 
+
     /**
-     * Menampilkan daftar pesanan yang berstatus 'completed' atau 'cancelled' (Histori Pesanan) dengan filter.
-     * Enkapsulasi: Mengemas logika pengambilan data histori pesanan dan menerapkan filter dinamis,
-     * kemudian menampilkan view.
-     * Abstraksi: Menggunakan metode query builder Eloquent (`whereIn()`, `whereMonth()`, `whereYear()`, `orderBy()`)
-     * untuk membangun query yang kompleks secara mudah.
-     * Polymorphism: Metode `whereMonth`, `whereYear`, dan `where` dapat digunakan pada kolom yang berbeda
-     * dan dengan nilai yang berbeda untuk memfilter data.
+     * Menampilkan histori pesanan (status 'completed' atau 'cancelled').
+     * Fungsi: Mengambil pesanan yang telah selesai atau dibatalkan.
+     * Abstraksi: Menggunakan `whereIn` untuk memfilter status.
      */
-    public function showHistory(Request $request)
+    public function showHistory()
     {
-        // Abstraksi: Memulai query untuk pesanan dengan status 'completed' atau 'cancelled'.
-        $query = Order::with('orderItems.menu')
-                      ->whereIn('status', ['completed', 'cancelled']);
+        $historyOrders = Order::whereIn('status', ['completed', 'cancelled'])
+                               ->with(['orderItems.menu', 'orderItems.menu.kategori'])
+                               ->orderBy('created_at', 'desc') // Urutkan dari yang terbaru
+                               ->get();
 
-        // Enkapsulasi/Abstraksi: Menerapkan filter berdasarkan bulan jika ada di request.
-        if ($request->filled('month') && $request->month !== 'all') {
-            $query->whereMonth('updated_at', $request->month);
-        }
-
-        // Enkapsulasi/Abstraksi: Menerapkan filter berdasarkan tahun jika ada di request.
-        if ($request->filled('year') && $request->year !== 'all') {
-            $query->whereYear('updated_at', $request->year);
-        }
-
-        // Enkapsulasi/Abstraksi: Menerapkan filter berdasarkan status jika ada di request.
-        if ($request->filled('status') && $request->status !== 'all') {
-            $query->where('status', $request->status);
-        }
-
-        // Abstraksi: Mengambil hasil query yang sudah difilter, diurutkan terbaru di atas.
-        $historyOrders = $query->orderBy('updated_at', 'desc')->get();
-
-        // Enkapsulasi: Mengembalikan view 'historipesanan' dengan data histori pesanan.
-        return view('historipesanan', compact('historyOrders'));
+        return view('historipesanan', compact('historyOrders')); // Pastikan ini mengarah ke historipesanan.blade.php
     }
 
     /**
-     * Mencetak rekap laporan pesanan histori (completed/cancelled) berdasarkan filter.
-     * Enkapsulasi: Mengemas logika untuk mengambil data histori pesanan berdasarkan filter,
-     * menghitung ringkasan, dan menyiapkan data untuk tampilan cetak.
-     * Abstraksi: Menggunakan Eloquent untuk query data dan Carbon untuk format tanggal.
-     * Polymorphism: Metode `whereMonth`, `whereYear`, `where` digunakan untuk filtering,
-     * dan `count()`, `sum()` digunakan untuk agregasi data.
+     * Mencetak rekap laporan pesanan.
+     * Fungsi: Menghasilkan tampilan rekap pesanan yang siap cetak.
+     * Abstraksi: Menggunakan `Carbon` untuk format tanggal.
      */
     public function printRekap(Request $request)
     {
-        // Abstraksi: Memulai query untuk pesanan dengan status 'completed' atau 'cancelled'.
-        $query = Order::with('orderItems.menu')
-                      ->whereIn('status', ['completed', 'cancelled']);
+        // Ambil data pesanan yang sudah selesai dari database
+        $completedOrders = Order::where('status', 'completed')
+                               ->with('orderItems.menu')
+                               ->orderBy('created_at', 'asc')
+                               ->get();
 
-        // Enkapsulasi/Abstraksi: Menerapkan filter berdasarkan bulan jika ada di request.
-        if ($request->filled('month') && $request->month !== 'all') {
-            $query->whereMonth('updated_at', $request->month);
-        }
+        // Hitung total pendapatan
+        $totalPendapatan = $completedOrders->sum('total_harga');
 
-        // Enkapsulasi/Abstraksi: Menerapkan filter berdasarkan tahun jika ada di request.
-        if ($request->filled('year') && $request->year !== 'all') {
-            $query->whereYear('updated_at', $request->year);
-        }
-
-        // Enkapsulasi/Abstraksi: Menerapkan filter berdasarkan status jika ada di request.
-        if ($request->filled('status') && $request->status !== 'all') {
-            $query->where('status', $request->status);
-        }
-
-        $filteredOrders = $query->orderBy('updated_at', 'desc')->get();
-
-        // Enkapsulasi: Menghitung data ringkasan.
-        $totalCompletedOrders = $filteredOrders->where('status', 'completed')->count();
-        $totalCancelledOrders = $filteredOrders->where('status', 'cancelled')->count();
-        $grandTotalRevenue = $filteredOrders->where('status', 'completed')->sum('total_harga');
-
-        // Enkapsulasi: Menyiapkan label filter untuk header laporan.
-        $filterLabels = [];
-        if ($request->month !== 'all' && $request->filled('month')) {
-            $filterLabels[] = 'Bulan: ' . Carbon::create()->month($request->month)->translatedFormat('F');
-        }
-        if ($request->year !== 'all' && $request->filled('year')) {
-            $filterLabels[] = 'Tahun: ' . $request->year;
-        }
-        if ($request->status !== 'all' && $request->filled('status')) {
-            $filterLabels[] = 'Status: ' . ucfirst($request->status);
-        }
-        $reportTitle = 'Rekap Laporan Histori Pesanan';
-        if (!empty($filterLabels)) {
-            $reportTitle .= ' (' . implode(', ', $filterLabels) . ')';
-        }
-
-        // Enkapsulasi: Mengembalikan view 'rekap_print' dengan semua data yang diperlukan.
-        return view('rekap_print', compact('filteredOrders', 'reportTitle', 'totalCompletedOrders', 'totalCancelledOrders', 'grandTotalRevenue'));
+        // Mengembalikan view untuk rekap print
+        return view('rekap_print', compact('completedOrders', 'totalPendapatan'));
     }
 
-
     /**
-     * Memperbarui status pesanan.
-     * Enkapsulasi: Mengemas logika validasi, pencarian pesanan, pembaruan status,
-     * dan pengalihan (redirect) berdasarkan status baru.
+     * Memperbarui status pesanan (pending, completed, cancelled).
+     * Fungsi: Mengubah status pesanan berdasarkan ID pesanan dan status baru.
      * Abstraksi: Menggunakan `$request->validate()` untuk validasi,
      * `Order::findOrFail()` untuk mencari model, dan `$order->save()` untuk menyimpan perubahan.
      * Polymorphism: Metode `save()` pada objek `Order` akan melakukan operasi UPDATE.

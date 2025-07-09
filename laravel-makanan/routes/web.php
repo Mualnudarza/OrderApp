@@ -4,10 +4,10 @@ use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\MenuController;
-use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderController; // Pastikan ini diimpor
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\ManajemenAksesController;
+use App\Http\Controllers\ManajemenAksesController; // Pastikan ini diimpor
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -35,43 +35,34 @@ Route::get('/', [HomeController::class, 'index'])->name('home'); // Daftar menu 
 // Rute /home juga mengarah ke index, tapi tanpa nama rute duplikat
 Route::get('/home', [HomeController::class, 'index']);
 
-// Grup Rute yang memerlukan autentikasi
+
+// Rute yang memerlukan autentikasi
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        // Arahkan berdasarkan peran
-        if (Auth::user()->isAdmin()) {
-            return redirect()->route('laporanpesanan.list');
-        } elseif (Auth::user()->isKasir()) {
-            return redirect()->route('order.index');
-        } elseif (Auth::user()->isMaster()) {
-            return redirect()->route('manajemen.akses');
-        }
-        return view('dashboard'); // Default jika tidak ada peran yang cocok
-    })->name('dashboard');
-
-    // Rute untuk Kasir
-    Route::middleware(['role:kasir,admin,master'])->group(function () { // Kasir, Admin, Master bisa akses pemesanan
-        Route::get('/order', [OrderController::class, 'index'])->name('order.index');
-        Route::post('/order', [OrderController::class, 'store'])->name('order.store');
-        Route::get('/laporan-pesanan', [OrderController::class, 'showPendingOrders'])->name('laporanpesanan.list');
-        Route::post('/order/update-status/{id}', [OrderController::class, 'updateStatus'])->name('order.updateStatus');
-    });
-
-    // Rute untuk Admin
-    Route::middleware(['role:admin,master'])->group(function () { // Admin dan Master bisa akses manajemen menu & kategori
-        Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori.list');
+    // Rute untuk Admin (Kategori & Menu)
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori.index');
         Route::post('/kategori', [KategoriController::class, 'store'])->name('kategori.store');
-        Route::get('/kategori/edit/{id}', [KategoriController::class, 'edit'])->name('kategori.edit');
-        Route::post('/kategori/update/{id}', [KategoriController::class, 'update'])->name('kategori.update');
-        Route::post('/kategori/delete/{id}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
+        Route::put('/kategori/{id}', [KategoriController::class, 'update'])->name('kategori.update');
+        Route::delete('/kategori/{id}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
 
-        Route::get('/menu', [MenuController::class, 'index'])->name('menu.list');
+        Route::get('/menu', [MenuController::class, 'index'])->name('menu.index');
         Route::post('/menu', [MenuController::class, 'store'])->name('menu.store');
         Route::get('/menu/kategori/{id}', [MenuController::class, 'filterByKategori']);
         Route::get('/menu/edit/{id}', [MenuController::class, 'edit']);
         Route::post('/menu/update/{id}', [MenuController::class, 'update']);
         Route::post('/menu/delete/{id}', [MenuController::class, 'destroy']);
+    });
 
+    // Rute untuk Kasir (Order, Laporan Pesanan, Histori Pesanan)
+    Route::middleware(['role:kasir'])->group(function () {
+        Route::get('/order', [OrderController::class, 'index'])->name('order.index');
+        Route::post('/order', [OrderController::class, 'store'])->name('order.store');
+        // Rute untuk laporan pesanan aktif (status pending)
+        Route::get('/laporan-pesanan', [OrderController::class, 'showPendingOrders'])->name('laporanpesanan.list');
+        // Rute untuk update status pesanan
+        Route::post('/order/update-status/{id}', [OrderController::class, 'updateStatus'])->name('order.updateStatus');
+
+        // Rute untuk histori pesanan (status completed/cancelled)
         Route::get('/histori-pesanan', [OrderController::class, 'showHistory'])->name('historipesanan.list');
         Route::get('/histori-pesanan/rekap-print', [OrderController::class, 'printRekap'])->name('historipesanan.printRekap');
     });
@@ -83,7 +74,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/manajemen-akses/update-role/{user}', [ManajemenAksesController::class, 'updateRole'])->name('manajemen.akses.update');
         Route::delete('/manajemen-akses/delete/{user}', [ManajemenAksesController::class, 'destroy'])->name('manajemen.akses.destroy');
 
-        // Rute ini tidak lagi diperlukan karena histori dimuat langsung di index
-        // Route::get('/manajemen-akses/users/{user}/role-history', [ManajemenAksesController::class, 'getUserRoleHistory'])->name('manajemen.akses.roleHistory');
+        // Rute baru untuk mengambil histori perubahan akses (AJAX)
+        Route::get('/manajemen-akses/users/{user}/role-history', [ManajemenAksesController::class, 'getUserRoleHistory'])->name('manajemen.akses.roleHistory');
     });
 });
+
