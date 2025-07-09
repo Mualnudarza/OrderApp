@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Kategori;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule; // Import Rule untuk validasi unik saat update
 
 class KategoriController extends Controller
 {
@@ -15,7 +16,14 @@ class KategoriController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['nama' => 'required']);
+        // Validasi: 'nama' wajib diisi dan harus unik di tabel 'kategoris'
+        $request->validate([
+            'nama' => 'required|unique:kategoris,nama',
+        ], [
+            'nama.unique' => 'Nama kategori ini sudah ada. Mohon gunakan nama lain.',
+            'nama.required' => 'Nama kategori tidak boleh kosong.',
+        ]);
+
         Kategori::create(['nama' => $request->nama]);
         return redirect('/kategori')->with('success', 'Kategori berhasil ditambahkan!');
     }
@@ -29,8 +37,20 @@ class KategoriController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate(['nama' => 'required']);
         $kategori = Kategori::findOrFail($id);
+
+        // Validasi: 'nama' wajib diisi dan harus unik di tabel 'kategoris',
+        // KECUALI untuk kategori yang sedang diupdate (diidentifikasi dengan ID-nya).
+        $request->validate([
+            'nama' => [
+                'required',
+                Rule::unique('kategoris', 'nama')->ignore($kategori->id),
+            ],
+        ], [
+            'nama.unique' => 'Nama kategori ini sudah ada. Mohon gunakan nama lain.',
+            'nama.required' => 'Nama kategori tidak boleh kosong.',
+        ]);
+
         $kategori->update(['nama' => $request->nama]);
         return redirect('/kategori')->with('success', 'Kategori diperbarui!');
     }
