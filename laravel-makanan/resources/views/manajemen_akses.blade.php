@@ -9,9 +9,14 @@
             <div class="card p-4">
                 <h2 class="h4 card-header d-flex justify-content-between align-items-center">
                     Manajemen Akses Pengguna
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
-                        <i class="bi bi-person-plus-fill me-1"></i> Tambah Pengguna Baru
-                    </button>
+                    <div>
+                        <button type="button" class="btn btn-primary btn-sm me-2" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                            <i class="bi bi-person-plus-fill me-1"></i> Tambah Pengguna Baru
+                        </button>
+                        <button type="button" class="btn btn-info btn-sm" id="toggleHistoryBtn">
+                            <i class="bi bi-clock-history me-1"></i> Lihat Semua Histori Peran
+                        </button>
+                    </div>
                 </h2>
                 <div class="card-body">
                     @if (session('success'))
@@ -24,81 +29,61 @@
                             {{ session('error') }}
                         </div>
                     @endif
+                    @if (session('info'))
+                        <div class="alert alert-info" role="alert">
+                            {{ session('info') }}
+                        </div>
+                    @endif
 
-                    <div class="table-responsive">
+                    <div class="table-responsive mb-5">
                         <table class="table table-bordered table-striped table-hover align-middle">
                             <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Nama</th>
                                     <th>Email</th>
-                                    <th>Peran Saat Ini</th>
-                                    <th>Ubah Peran</th>
+                                    <th>Role</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($users as $user)
+                                @forelse ($users as $user)
                                     <tr>
                                         <td>{{ $user->id }}</td>
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
                                         <td>
-                                            <span class="badge
-                                                @if($user->role == 'admin') bg-primary
-                                                @elseif($user->role == 'kasir') bg-info text-dark
-                                                @elseif($user->role == 'master') bg-success
-                                                @else bg-secondary
-                                                @endif">
+                                            <span class="badge bg-{{ $user->role == 'master' ? 'dark' : ($user->role == 'admin' ? 'primary' : 'secondary') }}">
                                                 {{ ucfirst($user->role) }}
                                             </span>
                                         </td>
                                         <td>
-                                            <form action="{{ route('manajemen.akses.update', $user->id) }}" method="POST">
-                                                @csrf
-                                                <select name="role" class="form-select form-select-sm">
-                                                    <option value="admin" {{ $user->role == 'admin' ? 'selected' : '' }}>Admin</option>
-                                                    <option value="kasir" {{ $user->role == 'kasir' ? 'selected' : '' }}>Kasir</option>
-                                                    <option value="master" {{ $user->role == 'master' ? 'selected' : '' }}>Master</option>
-                                                </select>
-                                        </td>
-                                        <td>
-                                                <button type="submit" class="btn btn-sm btn-primary me-2">Update</button>
-                                            </form>
-                                            {{-- Tombol Hapus --}}
-                                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ $user->id }}">
-                                                Hapus
-                                            </button>
+                                            <div class="d-flex gap-2">
+                                                {{-- Tombol Edit Role --}}
+                                                <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editUserModal"
+                                                        data-user-id="{{ $user->id }}"
+                                                        data-user-name="{{ $user->name }}"
+                                                        data-user-email="{{ $user->email }}"
+                                                        data-user-role="{{ $user->role }}">
+                                                    <i class="bi bi-pencil-square"></i> Edit Role
+                                                </button>
+
+                                                {{-- Tombol Hapus --}}
+                                                <form action="{{ route('manajemen.akses.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-danger">
+                                                        <i class="bi bi-trash"></i> Hapus
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
-
-                                    {{-- Modal Konfirmasi Hapus User --}}
-                                    <div class="modal fade" id="deleteUserModal{{ $user->id }}" tabindex="-1" aria-labelledby="deleteUserModalLabel{{ $user->id }}" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="deleteUserModalLabel{{ $user->id }}">Konfirmasi Hapus Pengguna</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    Apakah Anda yakin ingin menghapus pengguna <strong>{{ $user->name }} ({{ $user->email }})</strong>?
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                                    <form action="{{ route('manajemen.akses.destroy', $user->id) }}" method="POST">
-                                                        @csrf
-                                                        @method('DELETE') {{-- Penting untuk metode DELETE --}}
-                                                        <button type="submit" class="btn btn-danger">Hapus</button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="text-center py-4">
+                                        <td colspan="5" class="text-center py-4">
                                             <div class="alert alert-info text-center py-3 rounded-3 shadow-sm" role="alert">
-                                                <i class="bi bi-info-circle-fill me-2"></i> Tidak ada pengguna yang dapat dikelola.
+                                                <i class="bi bi-info-circle-fill me-2"></i> Tidak ada pengguna lain yang terdaftar.
                                             </div>
                                         </td>
                                     </tr>
@@ -106,6 +91,42 @@
                             </tbody>
                         </table>
                     </div>
+
+                    {{-- Bagian Histori Peran (awalnya tersembunyi) --}}
+                    <div id="roleHistorySection" style="display: none;">
+                        <h3 class="h5 card-title mb-3">Histori Perubahan Peran Pengguna</h3>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>ID Histori</th>
+                                        <th>Pengguna</th>
+                                        <th>Peran Lama</th>
+                                        <th>Peran Baru</th>
+                                        <th>Diubah Oleh</th>
+                                        <th>Diubah Pada</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($allRoleHistories as $history)
+                                        <tr>
+                                            <td>{{ $history->id }}</td>
+                                            <td>{{ $history->user->name ?? 'Pengguna Tidak Ditemukan' }}</td>
+                                            <td>{{ $history->old_role ? ucfirst($history->old_role) : '-' }}</td>
+                                            <td>{{ ucfirst($history->new_role) }}</td>
+                                            <td>{{ $history->changedBy->name ?? 'Sistem/Tidak Diketahui' }}</td>
+                                            <td>{{ $history->changed_at->format('d M Y H:i:s') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">Belum ada histori perubahan peran.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -123,58 +144,95 @@
             <form action="{{ route('manajemen.akses.store') }}" method="POST">
                 @csrf
                 <div class="modal-body">
-                    {{-- Tab Error untuk validasi di dalam modal --}}
-                    @if ($errors->any() && session('showAddUserModal'))
-                        <div class="error-tab" role="alert">
-                            <i class="bi bi-exclamation-triangle-fill"></i>
+                    @if ($errors->any() && session('form_type') == 'add_user')
+                        <div class="error-tab alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
                             <div>
-                                @foreach ($errors->all() as $error)
-                                    <div>{{ $error }}</div>
-                                @endforeach
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
                             </div>
                         </div>
                     @endif
-
                     <div class="mb-3">
-                        <label for="name" class="form-label">Nama</label>
-                        <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required>
-                        @error('name')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <label for="addName" class="form-label">Nama</label>
+                        <input type="text" class="form-control" id="addName" name="name" required value="{{ old('name') }}">
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required>
-                        @error('email')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <label for="addEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="addEmail" name="email" required value="{{ old('email') }}">
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required>
-                        @error('password')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                        <label for="addPassword" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="addPassword" name="password" required>
                     </div>
                     <div class="mb-3">
-                        <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
-                        <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+                        <label for="addPasswordConfirmation" class="form-label">Konfirmasi Password</label>
+                        <input type="password" class="form-control" id="addPasswordConfirmation" name="password_confirmation" required>
                     </div>
                     <div class="mb-3">
-                        <label for="role" class="form-label">Peran</label>
-                        <select class="form-select @error('role') is-invalid @enderror" id="role" name="role" required>
-                            <option value="kasir" {{ old('role') == 'kasir' ? 'selected' : '' }}>Kasir</option>
+                        <label for="addRole" class="form-label">Role</label>
+                        <select class="form-select" id="addRole" name="role" required>
                             <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="kasir" {{ old('role') == 'kasir' ? 'selected' : '' }}>Kasir</option>
                             <option value="master" {{ old('role') == 'master' ? 'selected' : '' }}>Master</option>
                         </select>
-                        @error('role')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary">Simpan Pengguna</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Modal Edit Pengguna --}}
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUserModalLabel">Edit Peran Pengguna</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editUserForm" method="POST">
+                @csrf
+                <div class="modal-body">
+                    @if ($errors->any() && session('form_type') == 'edit_user')
+                        <div class="error-tab alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <div>
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    @endif
+                    <div class="mb-3">
+                        <label for="editName" class="form-label">Nama</label>
+                        <input type="text" class="form-control" id="editName" name="name" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editEmail" name="email" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editRole" class="form-label">Role</label>
+                        <select class="form-select" id="editRole" name="role" required>
+                            <option value="admin">Admin</option>
+                            <option value="kasir">Kasir</option>
+                            <option value="master">Master</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Update Role</button>
                 </div>
             </form>
         </div>
@@ -209,11 +267,61 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Logika untuk menampilkan modal tambah user jika ada error validasi
-        @if ($errors->any() && session('showAddUserModal'))
-            var addUserModal = new bootstrap.Modal(document.getElementById('addUserModal'));
-            addUserModal.show();
-        @endif
+        // Logika untuk Modal Edit Pengguna
+        const editUserModal = document.getElementById('editUserModal');
+        editUserModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const userId = button.dataset.userId;
+            const userName = button.dataset.userName;
+            const userEmail = button.dataset.userEmail;
+            const userRole = button.dataset.userRole;
+
+            const modalTitle = editUserModal.querySelector('.modal-title');
+            const editUserForm = document.getElementById('editUserForm');
+            const editNameInput = document.getElementById('editName');
+            const editEmailInput = document.getElementById('editEmail');
+            const editRoleSelect = document.getElementById('editRole');
+
+            modalTitle.textContent = `Edit Peran untuk ${userName}`;
+            editUserForm.action = `/manajemen-akses/update-role/${userId}`; // Set action URL
+            editNameInput.value = userName;
+            editEmailInput.value = userEmail;
+            editRoleSelect.value = userRole;
+
+            // Tambahkan input hidden untuk form_type saat modal edit dibuka
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'form_type';
+            hiddenInput.value = 'edit_user';
+            editUserForm.appendChild(hiddenInput);
+        });
+
+        // Logika untuk menampilkan/menyembunyikan bagian histori peran
+        const toggleHistoryBtn = document.getElementById('toggleHistoryBtn');
+        const roleHistorySection = document.getElementById('roleHistorySection');
+
+        toggleHistoryBtn.addEventListener('click', function() {
+            if (roleHistorySection.style.display === 'none') {
+                roleHistorySection.style.display = 'block';
+                this.innerHTML = '<i class="bi bi-eye-slash me-1"></i> Sembunyikan Histori Peran';
+                this.classList.remove('btn-info');
+                this.classList.add('btn-secondary');
+            } else {
+                roleHistorySection.style.display = 'none';
+                this.innerHTML = '<i class="bi bi-clock-history me-1"></i> Lihat Semua Histori Peran';
+                this.classList.remove('btn-secondary');
+                this.classList.add('btn-info');
+            }
+        });
+
+        // Tambahkan input hidden ke form tambah pengguna saat submit
+        document.querySelector('#addUserModal form').addEventListener('submit', function() {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'form_type';
+            hiddenInput.value = 'add_user';
+            this.appendChild(hiddenInput);
+        });
     });
 </script>
 @endsection

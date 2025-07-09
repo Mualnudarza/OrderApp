@@ -21,7 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role', // Tambahkan 'role' ke fillable
+        'role', // Pastikan 'role' ada di sini jika Anda menggunakannya
     ];
 
     /**
@@ -43,6 +43,29 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Definisi relasi: Sebuah User memiliki banyak RoleHistory.
+     * Relasi ini memungkinkan kita untuk dengan mudah mengambil semua catatan
+     * perubahan peran yang terkait dengan pengguna ini.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function roleHistories()
+    {
+        // Mengurutkan histori dari yang terbaru (descending)
+        return $this->hasMany(RoleHistory::class)->orderBy('changed_at', 'desc');
+    }
+
+    /**
+     * Definisi relasi: Sebuah User memiliki banyak RoleHistory di mana mereka adalah pengubahnya.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function changedByRoleHistories()
+    {
+        return $this->hasMany(RoleHistory::class, 'changed_by_user_id');
+    }
 
     /**
      * Cek apakah pengguna adalah Admin.
